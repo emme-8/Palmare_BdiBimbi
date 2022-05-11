@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:ools="http://schemas.android.com/apk/distribution"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.emme.palmarebdibimbi">
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.GET_ACCOUNTS" />
+    <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <application
+        android:name=".MyApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/logoapp"
+        android:label="@string/app_name"
+        android:requestLegacyExternalStorage="true"
+        android:roundIcon="@drawable/logoapp"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.PalmareBDiBimbi"
+        tools:replace="android:theme">
+        <activity
+            android:name=".InvDepOff"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ReviewInv"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".HomeInventario"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".InvDep"
+            android:exported="false"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreaDocumentiSmart"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaPresaSmart"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VerificaGiacenzeSmart"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaSpuntaNegSmart"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaSpuntaSmartphone"
+            android:exported="true"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaSpuntaUbicOffline"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaSpuntaOffline"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ReviewCreaDoc"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".CreaDocumenti"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".VerificaGiacenze"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaPresa"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".BTDeviceList"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ReviewSpuntaNeg"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ReviewSpunta"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".IniziaInventario"
+            android:parentActivityName=".ShowDoc"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.ShowDoc" />
+        </activity>
+        <activity
+            android:name=".IniziaSpuntaNeg"
+            android:parentActivityName=".ShowDoc"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.ShowDoc" />
+        </activity>
+        <activity
+            android:name=".IniziaSpunta"
+            android:parentActivityName=".ShowDoc"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.ShowDoc" />
+        </activity>
+        <activity
+            android:name=".ShowDoc"
+            android:parentActivityName=".SelezionaBF"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.SelezionaBF" />
+        </activity>
+        <activity
+            android:name=".SelezionaBF"
+            android:parentActivityName=".MainSpuntoMerce"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.MainSpuntoMerce" />
+        </activity>
+        <activity
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MainSpuntoMerce"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.MainActivity" />
+        </activity>
+        <activity
+            android:name=".InvActivity"
+            android:parentActivityName=".MainActivity"
+            android:screenOrientation="portrait">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.emme.palmarebdibimbi.MainActivity" />
+        </activity>
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+    </application>
+
+</manifest>

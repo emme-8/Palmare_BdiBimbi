@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ProjectModuleManager">
+    <modules>
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Palmare_BDiBimbi.iml" filepath="$PROJECT_DIR$/.idea/modules/Palmare_BDiBimbi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/RFIDAPI3Library/Palmare_BDiBimbi.RFIDAPI3Library.iml" filepath="$PROJECT_DIR$/.idea/modules/RFIDAPI3Library/Palmare_BDiBimbi.RFIDAPI3Library.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/app/Palmare_BDiBimbi.app.iml" filepath="$PROJECT_DIR$/.idea/modules/app/Palmare_BDiBimbi.app.iml" />
+    </modules>
+  </component>
+</project>

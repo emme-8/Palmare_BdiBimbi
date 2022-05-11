@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="labels_array">
+        <item>Etichetta piccola</item>
+        <item>Frontalino</item>
+        <item>Etichetta promo</item>
+        <item>Frontalino promo</item>
+    </string-array>
+</resources>

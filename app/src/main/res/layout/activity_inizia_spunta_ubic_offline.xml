@@ -1,0 +1,385 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IniziaSpuntaUbicOffline">
+
+    <TextView
+        android:id="@+id/txtShowCodArtOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="12dp"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtInsEANOFF" />
+
+    <TextView
+        android:id="@+id/txtShowDescOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="2dp"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowCodArtOFF" />
+
+    <TextView
+        android:id="@+id/textView8OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:text="Qtà Doc"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescOFF" />
+
+    <TextView
+        android:id="@+id/textView9OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        android:text="Qta Letta"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescOFF" />
+
+    <TextView
+        android:id="@+id/txtQtaDocOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView8OFF"
+        app:layout_constraintStart_toStartOf="@+id/textView8OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView8OFF" />
+
+    <TextView
+        android:id="@+id/txtQtaLPOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView9OFF"
+        app:layout_constraintStart_toStartOf="@+id/textView9OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView9OFF" />
+
+    <EditText
+        android:id="@+id/insNColliSpuntaOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtUbiDefOFF" />
+
+    <EditText
+        android:id="@+id/insQtaSpuntaOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insNColliSpuntaOFF" />
+
+    <EditText
+        android:id="@+id/insUbicSpuntaOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:maxLength="4"
+        android:selectAllOnFocus="true"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insQtaSpuntaOFF" />
+
+    <Button
+        android:id="@+id/btnNextArtOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="avanti"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnBackArtOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="indietro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnSearchThisArtOFF"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:text=">"
+        app:layout_constraintBottom_toBottomOf="@+id/txtInsEANOFF"
+        app:layout_constraintStart_toEndOf="@+id/txtInsEANOFF" />
+
+    <TextView
+        android:id="@+id/lblNCOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Numero colli"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/insNColliSpuntaOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insNColliSpuntaOFF" />
+
+    <TextView
+        android:id="@+id/lblQXCOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Q.tà x collo"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/insQtaSpuntaOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insQtaSpuntaOFF" />
+
+    <TextView
+        android:id="@+id/lblUbicOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Ubicazione"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/insUbicSpuntaOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insUbicSpuntaOFF" />
+
+    <EditText
+        android:id="@+id/insSubicSpuntaOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:maxLength="4"
+        android:selectAllOnFocus="true"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insUbicSpuntaOFF" />
+
+    <TextView
+        android:id="@+id/lblSubicOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Sottoubicazione"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/insSubicSpuntaOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insSubicSpuntaOFF" />
+
+    <EditText
+        android:id="@+id/txtInsEANOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:ems="10"
+        android:hint="Codice EAN"
+        android:inputType="textPersonName"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView7OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Esistenza"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescOFF" />
+
+    <TextView
+        android:id="@+id/txtEsSpOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView7OFF"
+        app:layout_constraintStart_toStartOf="@+id/textView7OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView7OFF" />
+
+    <TextView
+        android:id="@+id/txtPrzArtOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="24dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtInsEANOFF" />
+
+    <TextView
+        android:id="@+id/textView6OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:text="Ubic e Sottoubic Default"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtQtaDocOFF" />
+
+    <TextView
+        android:id="@+id/textView10OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OF"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView8OFF"
+        app:layout_constraintEnd_toStartOf="@+id/textView7OFF"
+        app:layout_constraintStart_toEndOf="@+id/textView8OFF"
+        app:layout_constraintTop_toTopOf="@+id/textView7OFF" />
+
+    <TextView
+        android:id="@+id/textView11OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OC"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textView7OFF"
+        app:layout_constraintEnd_toStartOf="@+id/textView9OFF"
+        app:layout_constraintStart_toEndOf="@+id/textView7OFF"
+        app:layout_constraintTop_toTopOf="@+id/textView9OFF" />
+
+    <TextView
+        android:id="@+id/textView12OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        android:text="Ubic e Sottoubic Letta"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtQtaLPOFF" />
+
+    <TextView
+        android:id="@+id/txtUbiDefOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="@+id/textView6OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView6OFF" />
+
+    <TextView
+        android:id="@+id/txtUbiReadOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="@+id/textView12OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView12OFF" />
+
+    <TextView
+        android:id="@+id/txtOrdFOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView7OFF"
+        app:layout_constraintStart_toEndOf="@+id/textView8OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView10OFF" />
+
+    <TextView
+        android:id="@+id/txtOrdC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView9"
+        app:layout_constraintStart_toEndOf="@+id/textView7"
+        app:layout_constraintTop_toBottomOf="@+id/textView11" />
+
+    <ProgressBar
+        android:id="@+id/pbSearchArtOFF"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <TextView
+        android:id="@+id/textView15OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="-"
+        app:layout_constraintEnd_toEndOf="@+id/textView6OFF"
+        app:layout_constraintStart_toStartOf="@+id/textView6OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView6OFF" />
+
+    <TextView
+        android:id="@+id/textView17OFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="-"
+        app:layout_constraintEnd_toEndOf="@+id/textView12OFF"
+        app:layout_constraintStart_toStartOf="@+id/textView12OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView12OFF" />
+
+    <TextView
+        android:id="@+id/txtSubiReadOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView12OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView12OFF" />
+
+    <TextView
+        android:id="@+id/txtSubiDefOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintEnd_toEndOf="@+id/textView6OFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView6OFF" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

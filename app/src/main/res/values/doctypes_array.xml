@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="doctypes_array">
+        <item>BF</item>
+        <item>OF</item>
+        <item>PF</item>
+        <item>PR</item>
+        <item>BD</item>
+        <item>CO</item>
+        <item>OX</item>
+        <item>OC</item>
+        <item>PX</item>
+        <item>CL</item>
+        <item>IN</item>
+        <item>RC</item>
+        <item>RF</item>
+        <item>SL</item>
+    </string-array>
+</resources>

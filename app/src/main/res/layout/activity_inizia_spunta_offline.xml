@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".IniziaSpuntaOffline">
+
+    <TextView
+        android:id="@+id/txtShowCodArtNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="24dp"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtInsEANNegOFF" />
+
+    <TextView
+        android:id="@+id/txtShowDescNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="2dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="2dp"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowCodArtNegOFF" />
+
+    <TextView
+        android:id="@+id/textView8NegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:text="Qtà Doc"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNegOFF" />
+
+    <TextView
+        android:id="@+id/textView9NegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        android:text="Qta Letta"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNegOFF" />
+
+    <TextView
+        android:id="@+id/txtQtaDocNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView8NegOFF"
+        app:layout_constraintStart_toStartOf="@+id/textView8NegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView8NegOFF" />
+
+    <TextView
+        android:id="@+id/txtQtaLPNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView9NegOFF"
+        app:layout_constraintStart_toStartOf="@+id/textView9NegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView9NegOFF" />
+
+    <EditText
+        android:id="@+id/insNColliSpuntaNegOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtEsSpNegOFF" />
+
+    <EditText
+        android:id="@+id/insQtaSpuntaNegOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="number"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insNColliSpuntaNegOFF" />
+
+    <Button
+        android:id="@+id/btnNextArtNegOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="avanti"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <Button
+        android:id="@+id/btnBackArtNegOFF"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="indietro"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <Button
+        android:id="@+id/btnSearchThisArtNegOFF"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:text=">"
+        app:layout_constraintBottom_toBottomOf="@+id/txtInsEANNegOFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtInsEANNegOFF" />
+
+    <TextView
+        android:id="@+id/lblNCNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Numero colli"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/insNColliSpuntaNegOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insNColliSpuntaNegOFF" />
+
+    <TextView
+        android:id="@+id/lblQXCNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Q.tà x collo"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/insQtaSpuntaNegOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insQtaSpuntaNegOFF" />
+
+    <EditText
+        android:id="@+id/txtInsEANNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:ems="10"
+        android:hint="Codice EAN"
+        android:inputType="textPersonName"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/btnSearchThisArtNegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/chkEticOFF" />
+
+    <TextView
+        android:id="@+id/textView7NegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="Esistenza"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNegOFF" />
+
+    <TextView
+        android:id="@+id/txtEsSpNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="@+id/textView7NegOFF"
+        app:layout_constraintStart_toStartOf="@+id/textView7NegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView7NegOFF" />
+
+    <TextView
+        android:id="@+id/txtPrzArtNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:layout_marginEnd="24dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtInsEANNegOFF" />
+
+    <TextView
+        android:id="@+id/textView10NegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OF"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/textView8NegOFF"
+        app:layout_constraintEnd_toStartOf="@+id/textView7NegOFF"
+        app:layout_constraintStart_toEndOf="@+id/textView8NegOFF"
+        app:layout_constraintTop_toTopOf="@+id/textView7NegOFF" />
+
+    <TextView
+        android:id="@+id/textView11NegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="OC"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/textView7NegOFF"
+        app:layout_constraintEnd_toStartOf="@+id/textView9NegOFF"
+        app:layout_constraintStart_toEndOf="@+id/textView7NegOFF"
+        app:layout_constraintTop_toTopOf="@+id/textView9NegOFF" />
+
+    <TextView
+        android:id="@+id/txtOrdFNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView7NegOFF"
+        app:layout_constraintStart_toEndOf="@+id/textView8NegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView10NegOFF" />
+
+    <TextView
+        android:id="@+id/txtOrdCNegOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:textSize="15sp"
+        app:layout_constraintEnd_toStartOf="@+id/textView9NegOFF"
+        app:layout_constraintStart_toEndOf="@+id/textView7NegOFF"
+        app:layout_constraintTop_toBottomOf="@+id/textView11NegOFF" />
+
+    <ProgressBar
+        android:id="@+id/pbSearchArtNegOFF"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <RadioGroup
+        android:id="@+id/radioGroupOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <RadioButton
+            android:id="@+id/rbSSOFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sparata singola" />
+
+        <RadioButton
+            android:id="@+id/rbSMOFF"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Sparata multipla" />
+
+    </RadioGroup>
+
+    <EditText
+        android:id="@+id/insQtaSSOFF"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:text="1"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/txtInsEANNegOFF"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/txtInsEANNegOFF" />
+
+    <CheckBox
+        android:id="@+id/chkEticOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="24dp"
+        android:text="Stampa Etichette"
+        android:textSize="15sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/radioGroupOFF" />
+
+    <Spinner
+        android:id="@+id/spnEticOFF"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        app:layout_constraintBottom_toBottomOf="@+id/chkEticOFF"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/chkEticOFF" />
+
+    <Button
+        android:id="@+id/btnFineSpuntaOFF"
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="Concludi spunta"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rowSpuntaNeg"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:baselineAligned="false"
+    android:orientation="horizontal">
+    <!--
+    <ImageView
+        android:id="@+id/imageView1ID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        app:srcCompat="@drawable/imagenotfound" />
+-->
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView5CD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/muli"
+            android:paddingStart="8dp"
+            android:paddingTop="8dp"
+            android:text="Codice articolo"
+            android:textColor="#361d42"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtCodArtRowCD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/muli"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#361d42"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txtNDocaCD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/muli"
+            android:paddingStart="8dp"
+            android:text="Descrizione"
+            android:textAlignment="viewStart"
+            android:textColor="#361d42"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/txtDescRowCD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/muli"
+            android:paddingStart="8dp"
+            android:paddingEnd="8dp"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#361d42"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/infoTextViewIDSpuntaNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="Qta doc"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView14CD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="Qta spunta"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView16Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:text="Differenze"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtQtaRowDocSpuntaNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtQtaRowCD"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtQtaRowDiffNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/muli"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/btnModRigaCD"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="modifica" />
+
+    </LinearLayout>
+
+</LinearLayout>

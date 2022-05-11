@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stores_array">
+        <item>MASTER</item>
+        <item>MARCONI</item>
+        <item>PIRRI</item>
+        <item>SESTU</item>
+        <item>SASSARI</item>
+        <item>OLBIA</item>
+        <item>TORTOLI</item>
+        <item>CARBONIA</item>
+        <item>ORISTANO</item>
+        <item>NUORO</item>
+        <item>TIBURTINA</item>
+        <item>CAPENA</item>
+        <item>OSTIENSE</item>
+        <item>IN LAVORAZIONE</item>
+        <item>CASILINA</item>
+        <item>INTRANSITO</item>
+        <item>INTEMPORANEO</item>
+    </string-array>
+</resources>

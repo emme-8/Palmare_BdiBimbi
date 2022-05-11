@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="DesignSurface">
+    <option name="filePathToZoomLevelMap">
+      <map>
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_crea_documenti.xml" value="0.35688405797101447" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_crea_documenti_smart.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_presa.xml" value="0.20104166666666667" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_presa_smart.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_neg.xml" value="0.3007246376811594" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_neg_smart.xml" value="0.2640625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_smartphone.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_main.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_main_spunto_merce.xml" value="0.34193840579710144" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_prova_stampa.xml" value="0.34193840579710144" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_settings.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_verifica_giacenze.xml" value="0.35688405797101447" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/activity_verifica_giacenze_smart.xml" value="0.2640625" />
+        <entry key="..\:/Users/Mauro/Desktop/NAS/PalmareBDiBimbi/app/src/main/res/layout/ricerca_crea_doc.xml" value="0.35688405797101447" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_crea_documenti.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_home_inventario.xml" value="0.33" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_presa.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_neg.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_smartphone.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inizia_spunta_ubic_offline.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inv.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inv_dep.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_inv_dep_off.xml" value="0.5" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_main.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_main_spunto_merce.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_prova_stampa.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_review_crea_doc.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_review_inv.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_review_spunta.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_review_spunta_neg.xml" value="0.33" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_seleziona_b_f.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_settings.xml" value="0.33" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_show_doc.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_spunta_neg_ex.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_verifica_giacenze.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/activity_verifica_giacenze_smart.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_bf.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_review_crea_doc.xml" value="0.2015625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_review_inv.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_review_spunta.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_review_spunta_neg.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_rowdoc.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_show_arts.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_show_doc_presa.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/adapter_show_doc_print_label.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/add_barcode_layout.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/alert_dialog_layout.xml" value="0.3625" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/dialog_layout_root.xml" value="0.19895833333333332" />
+        <entry key="..\:/Users/Mauro/Desktop/PalmareBDiBimbi/app/src/main/res/layout/ricerca_crea_doc.xml" value="0.3625" />
+      </map>
+    </option>
+  </component>
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_11" default="true" project-jdk-name="1.8" project-jdk-type="JavaSDK">
+    <output url="file://$PROJECT_DIR$/build/classes" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="Android" />
+  </component>
+  <component name="SuppressKotlinCodeStyleNotification">
+    <option name="disableForAll" value="true" />
+  </component>
+</project>
