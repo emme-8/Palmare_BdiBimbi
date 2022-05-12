@@ -14,7 +14,7 @@
       </configuration>
     </facet>
   </component>
-  <component name="NewModuleRootManager">
+  <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$/../../../RFIDAPI3Library">
       <excludeFolder url="file://$MODULE_DIR$/../../../RFIDAPI3Library/.gradle" />

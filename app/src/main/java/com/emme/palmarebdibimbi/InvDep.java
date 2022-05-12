@@ -783,7 +783,7 @@ public class InvDep extends AppCompatActivity {
             insCodArt.requestFocus();
         });
         AlertDialog ok = builder.create();
-        ok.show();
+        ok.show();.
     }
 
 
