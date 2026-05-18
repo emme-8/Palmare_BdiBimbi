@@ -1,13 +1,11 @@
 package com.emme.palmarebdibimbi;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.os.StrictMode;
+import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.text.InputType;
 import android.util.Log;
@@ -20,41 +18,43 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.app.ActivityCompat;
-
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.openxmlformats.schemas.spreadsheetml.x2006.main.WorksheetDocument;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Stack;
+import java.util.HashSet;
+import java.util.Set;
 
 import static android.view.View.GONE;
 
 public class AdapterReviewSpuntaNeg extends ArrayAdapter {
 
     private final Activity context;
-    private ArrayList<String> codArt, nDoc;
-    private ArrayList<String> desc, alias;
+    private ArrayList<String> codArt, nDoc, idDoc;
+    private ArrayList<String> desc, alias, idUnici;
     private ArrayList<String> qtaDoc, qtaSpunta, timeSp;
+    String utenteSpunta;
+    ArrayList<Integer> discs;
+    private ConnectionClass connectionClass;
 
-    String docsName;
+    String docsName, tipoDoc;
     Integer tipo;
+    long idSpuntaDocRoom = -1;
 
     public AdapterReviewSpuntaNeg(Activity context, ArrayList<String> codArtArrayParam, ArrayList<String> descArrayParam,
                                ArrayList<String> qtaDocArrayParam, ArrayList<String> qtaSpArrayParam, ArrayList<String> aliasArrayParam,
-                                  ArrayList<String> nDoc, String docsName, Integer tipo, ArrayList<String> timeSp) {
+                                  ArrayList<String> nDoc, String docsName, Integer tipo, ArrayList<String> timeSp, ArrayList<String> idDoc, String tipoDoc, String utenteSpunta, long idSpuntaDocRoom) {
 
         super(context, R.layout.adapter_review_spunta_neg, codArtArrayParam);
 
@@ -66,14 +66,20 @@ public class AdapterReviewSpuntaNeg extends ArrayAdapter {
         this.alias = aliasArrayParam;
         this.timeSp = timeSp;
         this.nDoc = nDoc;
+        this.idDoc = idDoc;
+        this.tipoDoc = tipoDoc;
+        this.utenteSpunta = utenteSpunta;
 
         this.tipo = tipo;
         this.docsName = docsName;
+        this.idSpuntaDocRoom = idSpuntaDocRoom;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
         LayoutInflater inflater = context.getLayoutInflater();
         View rowView = inflater.inflate(R.layout.adapter_review_spunta_neg, null, true);
+
+        connectionClass = new ConnectionClass();
 
         //this code gets references to objects in the listview_row.xml file
         TextView txtCodArt = rowView.findViewById(R.id.txtCodArtRowCD);
@@ -164,84 +170,7 @@ public class AdapterReviewSpuntaNeg extends ArrayAdapter {
         saveDoc.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                int z=0;
-                for (int i = 0; i < codArt.size(); i++) {
-                    if(Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i)) != 0){
-                        z++;
-                    }
-                }
-                File file = new File("/storage/emulated/0/NAS/SpuntaDiff", "DIFF_"+z+"_"+docsName);
-                Workbook workbook = new XSSFWorkbook();
-                Sheet sheet = workbook.createSheet("Spunta"); //Creating a sheet
-
-                Row testata = sheet.createRow(0);
-                testata.createCell(0).setCellValue("Codice articolo");
-                testata.createCell(1).setCellValue("Descrizione");
-                testata.createCell(2).setCellValue("Alias");
-                testata.createCell(3).setCellValue("Ubicazione");
-                testata.createCell(4).setCellValue("Sottoubicazione");
-                testata.createCell(5).setCellValue("Quantita documento");
-                testata.createCell(6).setCellValue("Quantita spunta");
-                testata.createCell(7).setCellValue("Differenza");
-                testata.createCell(8).setCellValue("N. Doc");
-                testata.createCell(9).setCellValue("Sparata");
-
-                int j=0;
-                for (int i = 0; i < codArt.size(); i++) {
-                    if(Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i)) != 0){
-                        Row row = sheet.createRow(j+1);
-                        row.createCell(0).setCellValue(codArt.get(i));
-                        row.createCell(1).setCellValue(desc.get(i));
-                        Cell num2 = row.createCell(2);
-                        num2.setCellValue(alias.get(i));
-                        num2.setCellType(CellType.STRING);
-                        row.createCell(3).setCellValue("");
-                        row.createCell(4).setCellValue("");
-                        row.createCell(5).setCellValue(qtaDoc.get(i));
-                        row.createCell(6).setCellValue(qtaSpunta.get(i));
-                        int risultato = Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i));
-                        row.createCell(7).setCellValue(risultato);
-                        row.createCell(8).setCellValue(nDoc.get(i));
-                        row.createCell(9).setCellValue(timeSp.get(i));
-                        j++;
-                    }
-                }
-
-                FileOutputStream os = null;
-
-                try {
-                    os = new FileOutputStream(file);
-                    workbook.write(os);
-                    Log.w("FileUtils", "Writing file" + file);
-                } catch (IOException e) {
-                    Log.w("FileUtils", "Error writing " + file, e);
-                } catch (Exception e) {
-                    Log.w("FileUtils", "Failed to save file", e);
-                } finally {
-                    try {
-                        if (null != os)
-                            os.close();
-                    } catch (Exception ex) {
-                    }
-                }
-                SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
-                String email = p.getString("Email", "");
-                String emailPass = p.getString("EmailPass", "");
-
-                ArrayList<String> pathToSend = new ArrayList<>();
-                pathToSend.add("/storage/emulated/0/NAS/SpuntaGen/"+ docsName);
-                pathToSend.add("/storage/emulated/0/NAS/SpuntaDiff/"+ "DIFF_"+z+"_"+docsName);
-
-                String obj = docsName;
-                String[] to = new String[]{"spunte@bdibimbi.it", email};
-                try {
-                    sendEmail(to,email, obj, " ", pathToSend, email, emailPass);
-                    alertDisplayer("Attenzione!", "Documento di spunta creato con successo, verrai riportato alla home");
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    emailError("Errore","E' avvenuto un errore durante l'invio del documento",to, obj, email, pathToSend, emailPass);
-                }
-
+                confirmSend("Attenzione!", "Sei sicuro di voler salvare e inviare il documento? Dopo l'invio verrai reindirizzato alla home");
             }
         });
         return rowView;
@@ -253,13 +182,28 @@ public class AdapterReviewSpuntaNeg extends ArrayAdapter {
                 .setTitle(title)
                 .setMessage(message)
                 .setNegativeButton("Riprova", ((dialog, which) -> {
-                    try {
-                        sendEmail(to,email, obj, " ", pathToSend, email, emailPass);
-                        alertDisplayer("Attenzione!", "Documento inviato con successo, verrai riportato alla home");
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        emailError("Errore","E' avvenuto un errore durante l'invio del documento",to, obj, email, pathToSend, emailPass);
-                    }
+                    new Thread(() -> {
+                        try {
+                            sendEmail(to, email, obj, " ", pathToSend, email, emailPass);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            final String errMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                            context.runOnUiThread(() ->
+                                emailError("Errore invio email", errMsg, to, obj, email, pathToSend, emailPass)
+                            );
+                            return;
+                        }
+                        try {
+                            AdapterReviewSpunta.salvaSuServer(context, idSpuntaDocRoom, docsName);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            android.util.Log.e("AdapterReviewNeg", "salvaSuServer fallito: " + e.getMessage(), e);
+                        }
+                        context.runOnUiThread(() -> {
+                            marcaEmailInviataRoom();
+                            alertDisplayer("Attenzione!", "Documento inviato con successo, verrai riportato alla home");
+                        });
+                    }).start();
                 }))
                 .setPositiveButton("OK", (dialog, which) -> {
                     dialog.cancel();
@@ -267,6 +211,180 @@ public class AdapterReviewSpuntaNeg extends ArrayAdapter {
                 });
         AlertDialog ok = builder.create();
         ok.show();
+    }
+
+    private void confirmSend(String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton("NO", ((dialog, which) -> {
+                    dialog.cancel();
+                }))
+                .setPositiveButton("SI", (dialog, which) -> {
+                    dialog.cancel();
+                    int z=0;
+                    for (int i = 0; i < codArt.size(); i++) {
+                        if(Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i)) != 0){
+                            z++;
+                        }
+                    }
+                    File file = new File("/storage/emulated/0/NAS/SpuntaDiff", "DIFF_"+z+"_"+docsName);
+                    Workbook workbook = new XSSFWorkbook();
+                    Sheet sheet = workbook.createSheet("Spunta"); //Creating a sheet
+
+                    Row testata = sheet.createRow(0);
+                    testata.createCell(0).setCellValue("Codice articolo");
+                    testata.createCell(1).setCellValue("Descrizione");
+                    testata.createCell(2).setCellValue("Alias");
+                    testata.createCell(3).setCellValue("Ubicazione");
+                    testata.createCell(4).setCellValue("Sottoubicazione");
+                    testata.createCell(5).setCellValue("Quantita documento");
+                    testata.createCell(6).setCellValue("Quantita spunta");
+                    testata.createCell(7).setCellValue("Differenza");
+                    testata.createCell(8).setCellValue("N. Doc");
+                    testata.createCell(9).setCellValue("Sparata");
+
+                    int j=0;
+
+                    discs = new ArrayList<>();
+                    Set<String> setUnico = new HashSet<>(idDoc);
+                    setUnico.remove(""); // escludi righe extra documento (idDocRemoto vuoto)
+                    idUnici = new ArrayList<>(setUnico);
+                    for(int i=0;i< idUnici.size(); i++){
+                        discs.add(0);
+                    }
+
+                    for (int i = 0; i < codArt.size(); i++) {
+                        if(Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i)) != 0){
+                            Row row = sheet.createRow(j+1);
+                            row.createCell(0).setCellValue(codArt.get(i));
+                            row.createCell(1).setCellValue(desc.get(i));
+                            Cell num2 = row.createCell(2);
+                            num2.setCellValue(alias.get(i));
+                            num2.setCellType(CellType.STRING);
+                            row.createCell(3).setCellValue("");
+                            row.createCell(4).setCellValue("");
+                            row.createCell(5).setCellValue(qtaDoc.get(i));
+                            row.createCell(6).setCellValue(qtaSpunta.get(i));
+                            int risultato = Integer.parseInt(qtaSpunta.get(i)) - Integer.parseInt(qtaDoc.get(i));
+                            row.createCell(7).setCellValue(risultato);
+                            if(i<nDoc.size()){
+                                row.createCell(8).setCellValue(nDoc.get(i));
+                            }
+                            if(i<timeSp.size()){
+                                row.createCell(9).setCellValue(timeSp.get(i));
+                            }
+                            j++;
+                            // Riga extra documento (idDocRemoto vuoto): attribuisci al primo doc valido
+                            String docId = (i < idDoc.size() && !idDoc.get(i).isEmpty())
+                                    ? idDoc.get(i)
+                                    : (!idUnici.isEmpty() ? idUnici.get(0) : "");
+                            for(int y=0; y<idUnici.size(); y++){
+                                if(docId.equals(idUnici.get(y))){
+                                    discs.set(y, discs.get(y)+1);
+                                }
+                            }
+                        }
+                    }
+
+                    UpdFineSpunta updFineSpunta = new UpdFineSpunta();
+                    updFineSpunta.execute();
+
+                    FileOutputStream os = null;
+
+                    try {
+                        os = new FileOutputStream(file);
+                        workbook.write(os);
+                        Log.w("FileUtils", "Writing file" + file);
+                    } catch (IOException e) {
+                        Log.w("FileUtils", "Error writing " + file, e);
+                    } catch (Exception e) {
+                        Log.w("FileUtils", "Failed to save file", e);
+                    } finally {
+                        try {
+                            if (null != os)
+                                os.close();
+                        } catch (Exception ex) {
+                        }
+                    }
+                    SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+                    String email = p.getString("Email", "");
+                    String emailPass = p.getString("EmailPass", "");
+
+                    ArrayList<String> pathToSend = new ArrayList<>();
+                    pathToSend.add("/storage/emulated/0/NAS/SpuntaGen/"+ docsName);
+                    pathToSend.add("/storage/emulated/0/NAS/SpuntaDiff/"+ "DIFF_"+z+"_"+docsName);
+
+                    String obj = docsName;
+                    String[] to = new String[]{"spunte@bdibimbi.it", email};
+                    new Thread(() -> {
+                        try {
+                            sendEmail(to, email, obj, " ", pathToSend, email, emailPass);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            final String errMsg = e.getMessage() != null ? e.getMessage() : e.getClass().getSimpleName();
+                            context.runOnUiThread(() ->
+                                emailError("Errore invio email", errMsg, to, obj, email, pathToSend, emailPass)
+                            );
+                            return;
+                        }
+                        try {
+                            AdapterReviewSpunta.salvaSuServer(context, idSpuntaDocRoom, docsName);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            android.util.Log.e("AdapterReviewNeg", "salvaSuServer fallito: " + e.getMessage(), e);
+                        }
+                        context.runOnUiThread(() -> {
+                            marcaEmailInviataRoom();
+                            Intent retHome = new Intent(context, MainActivity.class);
+                            context.startActivity(retHome);
+                            context.finish();
+                        });
+                    }).start();
+                });
+        AlertDialog ok = builder.create();
+        ok.show();
+    }
+
+    public class UpdFineSpunta extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+        @Override
+        protected String doInBackground(String... params) {
+            // PF e RF non vanno registrate in mcDocInArrivo
+            if ("PF".equals(tipoDoc) || "RF".equals(tipoDoc)) return z;
+            Connection con = null;
+            try {
+                con = connectionClass.CONN(context);
+                if (con == null) {
+                    z = "Errore di connessione con il server";
+                } else {
+
+                    StringBuilder sql = new StringBuilder("UPDATE mcDocInArrivo SET discordanze = CASE ");
+
+                    for (int i = 0; i < idUnici.size(); i++) {
+                        sql.append("WHEN idDoc = '").append(idUnici.get(i)).append("' THEN ").append(discs.get(i)).append(" ");
+                    }
+
+                    sql.append("END, fineSpunta = GETDATE(), utente = '"+utenteSpunta+"' WHERE idDoc IN (");
+
+                    for (int i = 0; i < idUnici.size(); i++) {
+                        sql.append("'"+idUnici.get(i));
+                        if (i < idUnici.size() - 1) sql.append("', ");
+                    }
+
+                    sql.append("') and tipoDoc = '"+tipoDoc+"' ;");
+                    Statement stmt = con.createStatement();
+                    stmt.executeUpdate(sql.toString());
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
     }
 /*
     public void putInExcelFileDiff() {
@@ -517,6 +635,13 @@ public class AdapterReviewSpuntaNeg extends ArrayAdapter {
     }
 
  */
+
+    private void marcaEmailInviataRoom() {
+        try {
+            SpuntaDocumentoEntity doc = AppDb.getInstance(context).spuntaDao().getDocumentoByFileName(docsName);
+            if (doc != null) AppDb.getInstance(context).spuntaDao().marcaEmailInviata(doc.id);
+        } catch (Exception ignored) {}
+    }
 
     public static boolean sendEmail(String[] to, String from, String subject,
                                     String message,ArrayList<String> attachement, String user, String pass) throws Exception {

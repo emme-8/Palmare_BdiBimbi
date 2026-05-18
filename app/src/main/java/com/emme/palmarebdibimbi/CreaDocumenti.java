@@ -13,6 +13,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputFilter;
@@ -33,30 +34,30 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.json.JSONArray;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class CreaDocumenti extends AppCompatActivity {
 
     Button btnCD, btnSalvaDoc;
+    String ipNeg, utente, nomeP, insert;
     String alias = "";
     ListView listView;
     TextView txtSelectedArt;
@@ -67,11 +68,12 @@ public class CreaDocumenti extends AppCompatActivity {
     ConnectionClass connectionClass;
     EditText codArt;
     TextView txtCodArt, txtDesc, txtPV, txtPP;
-    TextView txtEsSestu, txtEsMarconi,txtEsPirri,txtEsSassari,txtEsOlbia,txtEsNuoro,txtEsOristano,txtEsTortoli,txtEsCarbonia,txtEsTiburtina,txtEsCapena,txtEsOstiense,txtEsDep, txtEsThis, txtEsCas;
-    TextView txtOFSestu, txtOFMarconi,txtOFPirri,txtOFSassari,txtOFOlbia,txtOFNuoro,txtOFOristano,txtOFTortoli,txtOFCarbonia,txtOFTiburtina,txtOFCapena,txtOFOstiense,txtOFDep, txtOFThis, txtOFCas;
-    TextView txtOCSestu, txtOCMarconi,txtOCPirri,txtOCSassari,txtOCOlbia,txtOCNuoro,txtOCOristano,txtOCTortoli,txtOCCarbonia,txtOCTiburtina,txtOCCapena,txtOCOstiense,txtOCDep, txtOCThis, txtOCCas;
+    TextView txtEsSestu, txtEsMarconi,txtEsPirri,txtEsSassari,txtEsOlbia,txtEsNuoro,txtEsOristano,txtEsTortoli,txtEsCarbonia,txtEsTiburtina,txtEsCapena,txtEsOstiense,txtEsDep, txtEsThis, txtEsCas, txtEsDepR;
+    TextView txtOFSestu, txtOFMarconi,txtOFPirri,txtOFSassari,txtOFOlbia,txtOFNuoro,txtOFOristano,txtOFTortoli,txtOFCarbonia,txtOFTiburtina,txtOFCapena,txtOFOstiense,txtOFDep, txtOFThis, txtOFCas, txtOFDepR;
+    TextView txtOCSestu, txtOCMarconi,txtOCPirri,txtOCSassari,txtOCOlbia,txtOCNuoro,txtOCOristano,txtOCTortoli,txtOCCarbonia,txtOCTiburtina,txtOCCapena,txtOCOstiense,txtOCDep, txtOCThis, txtOCCas, txtOCDepR;
     EditText insCodArt, insQtaND;
     int idL = 1;
+    String nomeDaGestione = null;
     int mag = 0;
     Context context;
     String artOrForn = "", fileName = "";
@@ -119,7 +121,55 @@ public class CreaDocumenti extends AppCompatActivity {
         }
     }
  */
+    public void verificaVersione(int versione) {
+        Connection con = null;
+        try {
+            con = connectionClass.CONN(context);
+                String query = "SELECT versioneApp, linkApp " +
+                        "FROM mcInfoBdiBimbi " ;
+                Statement stmt = con.createStatement();
+                ResultSet res = stmt.executeQuery(query);
+                if (res.next()) {
+                    if(res.getInt("versioneApp")!=versione){
+                        aggiornaPalmare("Attenzione!", "Stai utilizando una versione non aggiornata dell'app, scarica e installa l'aggiornamento per utilizzare tutte le ultime funzionalità", res.getString("linkApp"));
+                    }
+                }
+
+        } catch (Exception ex) {
+
+        }
+        if (con != null) {
+            try {
+                con.close();
+            } catch (SQLException ex) {
+
+            }
+        }
+    }
+
+    private void aggiornaPalmare(String title,String message, String link){
+        android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(CreaDocumenti.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton("ANNULLA", (dialog, which) -> {
+                    dialog.cancel();
+                })
+                .setPositiveButton("SCARICA E INSTALLA", (dialog, which) -> {
+                    dialog.cancel();
+                    Uri uri = Uri.parse(link); // missing 'http://' will cause crashed
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                });
+        android.app.AlertDialog ok = builder.create();
+        ok.show();
+    }
+
     public void inizializzaFile(){
+
+        if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")) {
+            CancDoc cancDoc = new CancDoc();
+            cancDoc.execute();
+        }
 
         File file = new File("/storage/emulated/0/NAS/CreatedDocs", fileName);
         Workbook workbook = new XSSFWorkbook();
@@ -195,76 +245,143 @@ public class CreaDocumenti extends AppCompatActivity {
             case "MASTER":
                 mag = 1;
                 idL = 1;
+                ipNeg = "192.168.2.41";
                 break;
             case "SESTU":
                 mag = 77;
-                idL = 6;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "MARCONI":
                 mag = 35;
-                idL = 6;
+                ipNeg = "192.168.1.20";
+                idL = 1;
                 break;
             case "PIRRI":
                 mag = 72;
-                idL = 6;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "OLBIA":
                 mag = 76;
-                idL = 5;
+                idL = 1;
+                ipNeg = "192.168.1.10";
                 break;
             case "SASSARI":
                 mag = 74;
-                idL = 9;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "NUORO":
                 mag = 32;
-                idL = 4;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "CARBONIA":
                 mag = 78;
-                idL = 7;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "TORTOLI":
                 mag = 75;
-                idL = 3;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "ORISTANO":
                 mag = 71;
-                idL = 8;
+                idL = 1;
+                ipNeg = "85.47.29.51";
                 break;
             case "TIBURTINA":
                 mag = 85;
-                idL = 3049;
+                idL = 1;
+                ipNeg = "195.100.100.202";
                 break;
             case "CAPENA":
                 mag = 87;
-                idL = 3050;
+                idL = 1;
+                ipNeg = "192.168.188.20";
                 break;
             case "OSTIENSE":
                 mag = 86;
-                idL = 3048;
+                idL = 1;
+                ipNeg = "196.100.100.203";
                 break;
             case "IN LAVORAZIONE":
                 mag = 59;
                 idL = 1;
+                ipNeg = "192.168.2.41";
                 break;
             case "CASILINA":
                 mag = 90;
-                idL = 3052;
+                idL = 1;
+                ipNeg = "192.168.1.20";
+                break;
+            case "POMEZIA":
+                mag = 94;
+                idL = 1;
+                ipNeg = "192.168.1.20";
+                break;
+            case "ARDEATINA":
+                mag = 112;
+                idL = 1;
+                ipNeg = "192.168.1.20";
+                break;
+            case "ROMACEDI":
+                mag = 111;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             case "INTRANSITO":
                 mag = 88;
                 idL = 1;
+                ipNeg = "192.168.2.41";
                 break;
             case "INTEMPORANEO":
                 mag = 89;
+                ipNeg = "192.168.2.41";
                 idL = 1;
+                break;
+            case "MasterMagRoma":
+                ipNeg = "195.100.100.202";
+                mag = 91;
+                idL = 1;
+                break;
+            case "CEDIROMAINLAV":
+                mag = 93;
+                idL = 1;
+                ipNeg = "192.168.1.20";
                 break;
             default:
                 mag = 0;
                 idL = 1;
                 break;
         }
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed(); // one inherited from android.support.v4.app.FragmentActivity
+        return false;
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        alertDisplayer("Attenzione!", "Sei sicuro di voler uscire dal documento? Verrai riportato alla home!");
+    }
+
+    private void alertDisplayer(String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(CreaDocumenti.this)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton("No", (dialog, which) -> dialog.cancel())
+                .setPositiveButton("Si", (dialog, which) -> {
+                    Intent exit = new Intent(CreaDocumenti.this, MainActivity.class);
+                    startActivity(exit);
+                });
+        AlertDialog ok = builder.create();
+        ok.show();
     }
 
     private void deleteDoc(String title,String message){
@@ -298,15 +415,64 @@ public class CreaDocumenti extends AppCompatActivity {
         ok.show();
     }
 
+    private void copyFile(String inputPath, String inputFile, String outputPath) {
+
+        inputPath = inputPath + "/";
+        outputPath = outputPath + "/";
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+
+            //create output directory if it doesn't exist
+            File dir = new File (outputPath);
+            if (!dir.exists())
+            {
+                dir.mkdirs();
+            }
+
+
+            in = new FileInputStream(inputPath + inputFile);
+            out = new FileOutputStream(outputPath + inputFile, false);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+
+            // write the output file (You have now copied the file)
+            out.flush();
+            out.close();
+            out = null;
+
+        }  catch (FileNotFoundException fnfe1) {
+            Log.e("tag", fnfe1.getMessage());
+        }
+        catch (Exception e) {
+            Log.e("tag", e.getMessage());
+        }
+
+    }
 
     public void loadAll(String codArtRec, int type){
         setContentView(R.layout.activity_crea_documenti);
 
         context = this;
+        connectionClass = new ConnectionClass();
 
         if (getSupportActionBar() != null) {
             getSupportActionBar().hide();
         }
+
+        Bundle extras = getIntent().getExtras();
+        if(extras != null){
+            store = extras.getString("storeName");
+            utente = extras.getString("utente");
+            verificaVersione(extras.getInt("versione"));
+        }
+        risolviMag();
 
         if(type == 1){
             inizializzaFile();
@@ -314,15 +480,13 @@ public class CreaDocumenti extends AppCompatActivity {
             docPres("Attenzione!","Documento presente");
         }else if(type == 3){
             scegliNomeFile("Attenzione!","Scegli un nome da associare al file");
+        }else if(type == 4){
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+            nomeP = p.getString("NomePalm", "");
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            fileName = nomeP+"_newDoc_"+nomeDaGestione+"_"+year+".xlsx"; //Name of the file
+            loadAll("", 2);
         }
-
-        Bundle extras = getIntent().getExtras();
-        if(extras != null){
-            store = extras.getString("storeName");
-        }
-        risolviMag();
-
-        connectionClass = new ConnectionClass();
 
         btnCD = findViewById(R.id.btnCD);
         pbCD = findViewById(R.id.pbCD);
@@ -380,6 +544,9 @@ public class CreaDocumenti extends AppCompatActivity {
         txtOCThis = findViewById(R.id.txtThisOCCD);
         btnSalvaDoc = findViewById(R.id.btnSalvaDoc);
         insQtaND = findViewById(R.id.insQtaND);
+        txtEsDepR = findViewById(R.id.txtEsDepR);
+        txtOFDepR = findViewById(R.id.txtOFDepR);
+        txtOCDepR = findViewById(R.id.txtOCDepR);
 
         insCodArt.setFocusableInTouchMode(true);
         insCodArt.requestFocus();
@@ -391,17 +558,21 @@ public class CreaDocumenti extends AppCompatActivity {
 
         insCodArt.setOnKeyListener((v, keyCode, event) -> {
             if ((event != null && (event.getKeyCode() == KeyEvent.KEYCODE_ENTER))) {
-                if(giaPremuto==0) {
-                    giaPremuto++;
-                }else{
-                    hideKeyboard(this);
-                    artOrForn = insCodArt.getText().toString();
-                    if(artOrForn.equals("")){
-                        articoloNonTrovato("Errore!", "Devi prima cercare un articolo");
+                if(fileName.length()>10){
+                    if(giaPremuto==0) {
+                        giaPremuto++;
                     }else{
-                        CreaDocumenti.FindArt cercaArt = new CreaDocumenti.FindArt();
-                        cercaArt.execute("");
+                        hideKeyboard(this);
+                        artOrForn = insCodArt.getText().toString().trim();
+                        if(artOrForn.equals("")){
+                            articoloNonTrovato("Errore!", "Devi prima cercare un articolo");
+                        }else{
+                            CreaDocumenti.FindArt cercaArt = new CreaDocumenti.FindArt();
+                            cercaArt.execute("");
+                        }
                     }
+                }else{
+                    scegliNomeFile("Attenzione!", "Il precedente tentativo di assegnazione del nome non è andato a buon fine, riprova");
                 }
             }
             return false;
@@ -472,7 +643,7 @@ public class CreaDocumenti extends AppCompatActivity {
             salvaDoc("Attenzione", "Sei sicuro di voler salvare il documento?");
         });
         btnCD.setOnClickListener(v -> {
-            artOrForn = insCodArt.getText().toString();
+            artOrForn = insCodArt.getText().toString().trim();
             CreaDocumenti.FindArt findArt = new CreaDocumenti.FindArt();
             findArt.execute();
         });
@@ -481,7 +652,13 @@ public class CreaDocumenti extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        loadAll("",3);
+        Bundle extras = getIntent().getExtras();
+        if(extras!=null && extras.getString("nomeDaGestione")!=null){
+            nomeDaGestione=extras.getString("nomeDaGestione");
+            loadAll("",4);
+        }else{
+            loadAll("",3);
+        }
     }
 
     private void scegliNomeFile(String title,String message){
@@ -505,8 +682,17 @@ public class CreaDocumenti extends AppCompatActivity {
             }else{
                 dialog.cancel();
                 fileName = note.getText().toString().replace(" ","_");
+                fileName = fileName.replace("'","");
+                fileName = fileName.replace("à","a");
+                fileName = fileName.replace("è","e");
+                fileName = fileName.replace("é","e");
+                fileName = fileName.replace("ò","o");
+                fileName = fileName.replace("ì","i");
+                fileName = fileName.replace("ù","u");
+                fileName = fileName.replace("/","_");
+                fileName = fileName.replace("%","");
                 SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
-                String nomeP = p.getString("NomePalm", "");
+                nomeP = p.getString("NomePalm", "");
                 int year = Calendar.getInstance().get(Calendar.YEAR);
                 fileName = nomeP+"_newDoc_"+fileName+"_"+year+".xlsx"; //Name of the file
 
@@ -514,6 +700,10 @@ public class CreaDocumenti extends AppCompatActivity {
                 if(fileEx.exists()){
                     loadAll("", 2);
                 }else{
+                    if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")){
+                        CancDoc cancDoc = new CancDoc();
+                        cancDoc.execute();
+                    }
                     loadAll("", 1);
                 }
             }
@@ -533,6 +723,10 @@ public class CreaDocumenti extends AppCompatActivity {
                     dialog.cancel();
                     Intent review = new Intent(CreaDocumenti.this, ReviewCreaDoc.class);
                     review.putExtra("fileName", fileName);
+                    review.putExtra("utente", utente);
+                    review.putExtra("ipNeg", ipNeg);
+                    review.putExtra("nomeP", nomeP);
+                    review.putExtra("store", store);
                     startActivity(review);
                 });
         AlertDialog ok = builder.create();
@@ -762,6 +956,13 @@ public class CreaDocumenti extends AppCompatActivity {
                 }else{
                     return "0";
                 }
+            case 91:
+            case 93:
+                if(!txtOCDepR.getText().toString().equals("")){
+                    return txtOCDepR.getText().toString();
+                }else{
+                    return "0";
+                }
             default:
                 return "0";
         }
@@ -851,6 +1052,13 @@ public class CreaDocumenti extends AppCompatActivity {
             case 90:
                 if(!txtOFCas.getText().toString().equals("")){
                     return txtOFCas.getText().toString();
+                }else{
+                    return "0";
+                }
+            case 91:
+            case 93:
+                if(!txtOFDepR.getText().toString().equals("")){
+                    return txtOFDepR.getText().toString();
                 }else{
                     return "0";
                 }
@@ -946,6 +1154,13 @@ public class CreaDocumenti extends AppCompatActivity {
                 }else{
                     return "0";
                 }
+            case 91:
+            case 93:
+                if(!txtEsDepR.getText().toString().equals("")){
+                    return txtEsDepR.getText().toString();
+                }else{
+                    return "0";
+                }
             default:
                 return "0";
         }
@@ -1003,6 +1218,12 @@ public class CreaDocumenti extends AppCompatActivity {
                         Integer tot = Integer.parseInt(row.getCell(3).getStringCellValue()) + Integer.parseInt(insQtaND.getText().toString());
                         row.createCell(3).setCellValue(tot.toString());
                         find = true;
+                        /*
+                        if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")) {
+                            CreaDocumenti.AggDoc aggDoc = new CreaDocumenti.AggDoc(Integer.parseInt(insQtaND.getText().toString()), txtCodArt.getText().toString());
+                            aggDoc.execute();
+                        }
+                        */
                     }
                     i++;
                 }
@@ -1013,6 +1234,13 @@ public class CreaDocumenti extends AppCompatActivity {
                     row.createCell(0).setCellValue(note.getText().toString());
                     row.createCell(3).setCellValue(insQtaND.getText().toString());
                     row.createCell(4).setCellValue(note.getText().toString());
+                    /*
+                    insert = "('"+insCodArt.getText().toString()+"', '"+txtDesc.getText().toString()+"', '"+note.getText().toString()+"', "+insQtaND.getText().toString()+", '"+note.getText().toString()+"', '"+nomeP+"', '"+utente+"')";
+                    if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")){
+                        CreaDocumenti.CreaDoc creaDoc = new CreaDocumenti.CreaDoc();
+                        creaDoc.execute();
+                    }
+                     */
                 }
                 file.close();
 
@@ -1023,6 +1251,9 @@ public class CreaDocumenti extends AppCompatActivity {
             } catch (Exception e) {
                 e.printStackTrace();
             }
+            String outFileName = fileName;
+            String path = "/storage/emulated/0/NAS/createdDocs";
+            copyFile(path, outFileName, "/storage/emulated/0/Backup");
             insCodArt.setEnabled(true);
             insCodArt.setText("");
             insQtaND.setText("1");
@@ -1098,6 +1329,12 @@ public class CreaDocumenti extends AppCompatActivity {
                     Integer tot = Integer.parseInt(row.getCell(3).getStringCellValue()) + Integer.parseInt(insQtaND.getText().toString());
                     row.createCell(3).setCellValue(tot.toString());
                     find = true;
+                    /*
+                    if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")){
+                        CreaDocumenti.AggDoc aggDoc = new CreaDocumenti.AggDoc(Integer.parseInt(insQtaND.getText().toString()), txtCodArt.getText().toString());
+                        aggDoc.execute();
+                    }
+                     */
                 }
                 i++;
             }
@@ -1108,6 +1345,13 @@ public class CreaDocumenti extends AppCompatActivity {
                 row.createCell(0).setCellValue(txtCodArt.getText().toString());
                 row.createCell(3).setCellValue(insQtaND.getText().toString());
                 row.createCell(4).setCellValue("");
+                /*
+                insert = "('"+insCodArt.getText().toString()+"', '"+txtDesc.getText().toString()+"', '"+txtCodArt.getText().toString()+"', "+insQtaND.getText().toString()+", '', '"+nomeP+"', '"+utente+"')";
+                if(store.equals("MASTER") || store.equals("TIBURTINA") || store.equals("IN LAVORAZIONE") || store.equals("INTRANSITO") || store.equals("INTEMPORANEO") || store.equals("MasterMagRoma") || store.equals("CEDIROMAINLAV")) {
+                    CreaDocumenti.CreaDoc creaDoc = new CreaDocumenti.CreaDoc();
+                    creaDoc.execute();
+                }
+                 */
             }
             file.close();
 
@@ -1118,6 +1362,9 @@ public class CreaDocumenti extends AppCompatActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+        String outFileName = fileName;
+        String path = "/storage/emulated/0/NAS/createdDocs";
+        copyFile(path, outFileName, "/storage/emulated/0/Backup");
         getWindow().clearFlags(WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE);
         pbCD.setVisibility(View.GONE);
         insCodArt.setEnabled(true);
@@ -1277,6 +1524,11 @@ public class CreaDocumenti extends AppCompatActivity {
                             txtOCCas.setText(res.getString("OrdiniCliente"));
                             txtOFCas.setText(res.getString("OrdiniFornitore"));
                             break;
+                        case 91:
+                            txtEsDepR.setText(res.getString("Esistenza"));
+                            txtOCDepR.setText(res.getString("OrdiniCliente"));
+                            txtOFDepR.setText(res.getString("OrdiniFornitore"));
+                            break;
                         default:
                             break;
                     }
@@ -1299,6 +1551,155 @@ public class CreaDocumenti extends AppCompatActivity {
         AdapterRicArt whatever = new AdapterRicArt(this, codiciR, descrizioniR, eanR, txtSelectedArt, esistenzaR);
         listView.setAdapter(whatever);
     }
+
+    /*
+    public class CreaDoc extends AsyncTask<String,String,String>{
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "INSERT INTO mcNewDoc (codArt, descrizione, alias, qta, note, palmare, utente) " +
+                            "VALUES "+insert+" ";
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+    }
+    */
+
+    public class CancDoc extends AsyncTask<String,String,String>{
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "DELETE a " +
+                            "FROM mcNewDoc a " +
+                            "WHERE palmare = '"+nomeP+"' ";
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+    }
+
+    /*
+    public class AggDoc extends AsyncTask<String,String,String>{
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+
+        Integer qta;
+
+        String codArt;
+
+        public AggDoc(Integer qta, String codArt){
+            this.qta = qta;
+            this.codArt = codArt;
+        }
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "UPDATE mcNewDoc " +
+                            "SET qta = "+qta+" " +
+                            "WHERE codArt = '"+codArt+"' and palmare = '"+nomeP+"' ";
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+    }*/
 
     public static class AdapterRicArt extends ArrayAdapter {
 

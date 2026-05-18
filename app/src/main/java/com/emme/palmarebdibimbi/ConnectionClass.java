@@ -13,10 +13,10 @@ import java.sql.SQLException;
 
 public class ConnectionClass {
     private String db = "PassepartoutRetail";
-    private String un = "sa";
-    private String password = "SaSqlPass*01";
-    private String bASardegna = "jdbc:jtds:sqlserver://195.103.42.126/" + db + ";user=" + un + ";password=" + password + ";";
-    private String bASardegnaLocale = "jdbc:jtds:sqlserver://192.168.1.41/" + db + ";user=" + un + ";password=" + password + ";";
+    private String un = "mdrsa";
+    private String password = "MDRSqlPass@2020";
+    private String bASardegna = "jdbc:jtds:sqlserver://85.47.29.51/" + db + ";user=" + un + ";password=" + password + ";";
+    private String bASardegnaLocale = "jdbc:jtds:sqlserver://192.168.2.41/" + db + ";user=" + un + ";password=" + password + ";";
     @SuppressLint("NewApi")
     public Connection CONN(Context context) {
         StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();

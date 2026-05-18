@@ -2,11 +2,13 @@ package com.emme.palmarebdibimbi;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
@@ -15,26 +17,22 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.Serializable;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.List;
+import java.util.Calendar;
 
 public class ShowDoc extends AppCompatActivity implements Serializable {
 
     ConnectionClass connectionClass;
     ArrayList<String> codArt = new ArrayList<>();
+    ArrayList<String> costo = new ArrayList<>();
     ArrayList<String> alias = new ArrayList<>();
     ArrayList<String> desc = new ArrayList<>();
     ArrayList<String> qta = new ArrayList<>();
@@ -53,16 +51,20 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
     int listino, mag, spuntaOrPresa, magRif, listinoRif;
     ListView listView;
     TextView txtInfoDic;
-    String fornitore = "";
-    String tipo;
+    String fornitore = "", ipNeg = "";
+    String tipo, utente;
     String magazzino;
     int ordinamento;
+    int tipoEs;
     SharedPreferences preferences;
     boolean isOnline, smartMode;
-    String whereID, whereNum, whereSel;
+    String whereID, whereNum, whereSel, segnaC;
     Context thisContext;
     Boolean ubic;
     Button btnSpunta;
+    Context context;
+    String idXMail;
+    boolean isRemoto;
     ProgressBar pbShowDoc;
 
     @Override
@@ -81,6 +83,8 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
             getSupportActionBar().hide();
         }
 
+        context = this;
+
         btnSpunta = findViewById(R.id.btnSpuntaDoc);
         pbShowDoc = findViewById(R.id.pbShowDoc);
         pbShowDoc.setVisibility(View.GONE);
@@ -96,17 +100,23 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
         if(extras != null){
             for(int i=0; i<extras.getStringArrayList("selIds").size(); i++){
                 if(i==0){
+                    idXMail="'"+extras.getStringArrayList("selIds").get(i)+"'";
                     ids="'"+extras.getStringArrayList("selIds").get(i)+"'";
                     docs="'"+extras.getStringArrayList("selDocs").get(i)+"'";
                 }else{
+                    idXMail+="- '"+extras.getStringArrayList("selIds").get(i)+"'";
                     ids+=", '"+extras.getStringArrayList("selIds").get(i)+"'";
                     docs+=", '"+extras.getStringArrayList("selDocs").get(i)+"'";
                 }
             }
+            isRemoto = extras.getBoolean("isRemoto");
+            ipNeg = extras.getString("ipNeg");
             spuntaOrPresa = extras.getInt("spuntaOrPresa");
             mag = extras.getInt("mag");
             magRif = extras.getInt("magRif");
             fornitore = extras.getString("fornitore");
+            utente = extras.getString("utente");
+            segnaC = extras.getString("segnaC");
             magazzino = extras.getString("magazzino");
             tipo = extras.getString("tipo");
             listino = extras.getInt("listino");
@@ -124,8 +134,13 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
         if(spuntaOrPresa == 0){
             btnSpunta.setText("INIZIA SPUNTA");
             if(isOnline){
-                ShowDoc.FindRows cerca = new ShowDoc.FindRows();
-                cerca.execute("");
+                if(isRemoto){
+                    ShowDoc.FindRows cerca = new ShowDoc.FindRows();
+                    cerca.execute("");
+                }else{
+                    ShowDoc.FindRowsMioServer cerca = new ShowDoc.FindRowsMioServer();
+                    cerca.execute("");
+                }
             }else{
                 ShowDoc.FindRowsOffline cerca = new ShowDoc.FindRowsOffline();
                 cerca.execute("");
@@ -133,11 +148,31 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
         }else if(spuntaOrPresa == 1){
             btnSpunta.setText("INIZIA PRESA");
             ordinamento = extras.getInt("tipoOrd");
-            ShowDoc.FindRowsPresa cerca = new ShowDoc.FindRowsPresa();
-            cerca.execute("");
+            tipoEs = extras.getInt("tipoEs");
+            if(tipoEs==0){
+                if(isRemoto){
+                    ShowDoc.FindRowsPresa cerca = new ShowDoc.FindRowsPresa();
+                    cerca.execute("");
+                }else{
+                    ShowDoc.FindRowsPresaMioServer cerca = new ShowDoc.FindRowsPresaMioServer();
+                    cerca.execute("");
+                }
+            }else{
+                if(isRemoto){
+                    ShowDoc.FindRowsPresaTot cerca = new ShowDoc.FindRowsPresaTot();
+                    cerca.execute("");
+                }else{
+                    ShowDoc.FindRowsPresaTotMioServer cerca = new ShowDoc.FindRowsPresaTotMioServer();
+                    cerca.execute("");
+                }
+            }
         }else if(spuntaOrPresa == 2){
             btnSpunta.setText("INIZIA INVENTARIO");
             ShowDoc.FindRows cerca = new ShowDoc.FindRows();
+            cerca.execute("");
+        }else if(spuntaOrPresa == 10){
+            btnSpunta.setText("INIZIA CONTROLLI");
+            ShowDoc.FindRowsControlli cerca = new ShowDoc.FindRowsControlli();
             cerca.execute("");
         }else{
             btnSpunta.setText("STAMPA ETICHETTE");
@@ -148,7 +183,7 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
         btnSpunta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setCodPerSpunta();
+                setCodPerSpunta(() -> {
                 if(ubic && spuntaOrPresa == 0){
                     Intent spunta;
                     if(smartMode){
@@ -159,8 +194,13 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                     spunta.putExtra("listino", listino);
                     spunta.putExtra("tipoDoc", tipo);
                     spunta.putExtra("fornitore", fornitore);
+                    spunta.putExtra("segnaC", segnaC);
+                    spunta.putExtra("ipNeg", ipNeg);
+                    spunta.putExtra("isRemoto", isRemoto);
+                    spunta.putExtra("utente", utente);
                     spunta.putExtra("mag", mag);
                     spunta.putExtra("rip", 0);
+                    spunta.putExtra("idSpuntaDocRoom", idSpuntaDocRoom);
                     startActivity(spunta);
                 }else if(!ubic && spuntaOrPresa == 0){
                     if(isOnline){
@@ -173,8 +213,13 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                         spunta.putExtra("listino", listino);
                         spunta.putExtra("tipoDoc", tipo);
                         spunta.putExtra("mag", mag);
+                        spunta.putExtra("segnaC", segnaC);
+                        spunta.putExtra("ipNeg", ipNeg);
+                        spunta.putExtra("isRemoto", isRemoto);
                         spunta.putExtra("fornitore", fornitore);
+                        spunta.putExtra("utente", utente);
                         spunta.putExtra("rip", 0);
+                        spunta.putExtra("idSpuntaDocRoom", idSpuntaDocRoom);
                         startActivity(spunta);
                     }else{
                         Intent spuntaOff = new Intent(ShowDoc.this, IniziaSpuntaOffline.class);
@@ -182,10 +227,27 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                         spuntaOff.putExtra("tipoDoc", tipo);
                         spuntaOff.putExtra("fornitore", fornitore);
                         spuntaOff.putExtra("mag", mag);
+                        spuntaOff.putExtra("utente", utente);
+                        spuntaOff.putExtra("ipNeg", ipNeg);
+                        spuntaOff.putExtra("isRemoto", isRemoto);
                         spuntaOff.putExtra("rip", 0);
                         spuntaOff.putExtra("MyClass", artDoc);
                         startActivity(spuntaOff);
                     }
+                }else if(spuntaOrPresa == 10){
+                    Intent spunta = new Intent(ShowDoc.this, IniziaSpuntaNeg.class);
+
+                    spunta.putExtra("listino", listino);
+                    spunta.putExtra("tipoDoc", tipo);
+                    spunta.putExtra("mag", mag);
+                    spunta.putExtra("ipNeg", ipNeg);
+                    spunta.putExtra("isRemoto", isRemoto);
+                    spunta.putExtra("segnaC", segnaC);
+                    spunta.putExtra("fornitore", fornitore);
+                    spunta.putExtra("utente", utente);
+                    spunta.putExtra("rip", 0);
+                    spunta.putExtra("idSpuntaDocRoom", idSpuntaDocRoom);
+                    startActivity(spunta);
                 }else if(spuntaOrPresa==1){
                     Intent presa;
                     if(smartMode){
@@ -197,32 +259,43 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                     presa.putExtra("mag", mag);
                     presa.putExtra("listinoRif", listinoRif);
                     presa.putExtra("magRif", magRif);
+                    presa.putExtra("segnaC", segnaC);
+                    presa.putExtra("ipNeg", ipNeg);
+                    presa.putExtra("isRemoto", isRemoto);
+                    presa.putExtra("utente", utente);
                     presa.putExtra("fornitore", fornitore);
                     presa.putExtra("tipoDoc", tipo);
                     presa.putExtra("rip", 0);
                     presa.putExtra("magazzino", magazzino);
+                    presa.putExtra("idSpuntaDocRoom", idSpuntaDocRoom);
                     startActivity(presa);
                 }else{
                     Intent inv = new Intent(ShowDoc.this, IniziaInventario.class);
                     inv.putExtra("listino", listino);
                     inv.putExtra("tipoDoc", tipo);
+                    inv.putExtra("utente", utente);
                     inv.putExtra("mag", mag);
                     inv.putExtra("fornitore", fornitore);
                     inv.putExtra("rip", 0);
                     startActivity(inv);
                 }
+                }); // fine lambda setCodPerSpunta
             }
         });
     }
 
-    public void setCodPerSpunta(){
-        if(spuntaOrPresa == 0){
+    public void setCodPerSpunta(Runnable onReady){
+        if(spuntaOrPresa == 0 || spuntaOrPresa == 10){
             ((MyApplication) this.getApplication()).setCodArt(codArt);
             ((MyApplication) this.getApplication()).setQuantita(qta);
+            ((MyApplication) this.getApplication()).setID(idDoc);
             ((MyApplication) this.getApplication()).setID(idDoc);
             ((MyApplication) this.getApplication()).setNum(numDoc);
             ((MyApplication) this.getApplication()).setSerie(serieDoc);
             ((MyApplication) this.getApplication()).setDesc(desc);
+            ((MyApplication) this.getApplication()).setCosto(costo);
+
+            salvaRigheInRoom(onReady);
         }else if(spuntaOrPresa == 1){
             ((MyApplication) this.getApplication()).setCodArt(codArt);
             ((MyApplication) this.getApplication()).setAlias(alias);
@@ -235,17 +308,362 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
             ((MyApplication) this.getApplication()).setSubic(subic);
             ((MyApplication) this.getApplication()).setEsistenza(esistenza);
             ((MyApplication) this.getApplication()).setImpegnati(impegnati);
+
+            salvaRigheInRoomPresa(onReady);
         }else{
             ((MyApplication) this.getApplication()).setCodArt(codArt);
             ((MyApplication) this.getApplication()).setQuantita(qta);
             ((MyApplication) this.getApplication()).setID(idDoc);
             ((MyApplication) this.getApplication()).setNum(numDoc);
             ((MyApplication) this.getApplication()).setDesc(desc);
+            if(onReady != null) onReady.run();
         }
     }
 
+    private long idSpuntaDocRoom = -1;
+
+    private void salvaRigheInRoom(Runnable onReady){
+        try {
+            AppDb db = AppDb.getInstance(getApplicationContext());
+            SpuntaDao dao = db.spuntaDao();
+
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(thisContext);
+            String nomeP = p.getString("NomePalm","");
+            String forn = fornitore.replace("è","e").replace("é","e")
+                    .replace("à","a").replace("ì","i")
+                    .replace("ò","o").replace("ù","u").replace("'","");
+
+            String docsName = "";
+            String tempnDoc = "";
+            for(int z=0; z<numDoc.size(); z++){
+                if(z==0){
+                    docsName = tipo + "_" + forn + "_" + numDoc.get(0) + "_" + serieDoc.get(0);
+                }else if(!numDoc.get(z).equals(tempnDoc)){
+                    docsName = docsName + "_" + numDoc.get(z) + "_" + serieDoc.get(z);
+                }
+                tempnDoc = numDoc.get(z);
+            }
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            String fileName = nomeP + "_spunta_" + docsName + "_" + year + ".xlsx";
+
+            SpuntaDocumentoEntity docEsistente = dao.getDocumentoByFileName(fileName);
+            if(docEsistente != null){
+                final long idEsistente = docEsistente.id;
+                final String fFileName = fileName;
+                final String fDocsName = docsName;
+                new android.app.AlertDialog.Builder(this)
+                    .setTitle("Documento già in corso")
+                    .setMessage("Questo documento ha già una scansione in corso.\nVuoi continuare o ricominciare da zero?")
+                    .setPositiveButton("Continua", (d, w) -> {
+                        idSpuntaDocRoom = idEsistente;
+                        if(onReady != null) onReady.run();
+                    })
+                    .setNegativeButton("Ricomincia", (d, w) -> {
+                        dao.deleteDocumentoCompleto(idEsistente);
+                        File excelFile = new File("/storage/emulated/0/NAS/SpuntaGen", fFileName);
+                        if(excelFile.exists()) excelFile.delete();
+                        creaDocumentoSpuntaInRoom(dao, fFileName, fDocsName);
+                        if(onReady != null) onReady.run();
+                    })
+                    .setCancelable(false)
+                    .show();
+                return;
+            }
+
+            creaDocumentoSpuntaInRoom(dao, fileName, docsName);
+            if(onReady != null) onReady.run();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void creaDocumentoSpuntaInRoom(SpuntaDao dao, String fileName, String docsName){
+        try {
+            String forn = fornitore.replace("è","e").replace("é","e")
+                    .replace("à","a").replace("ì","i")
+                    .replace("ò","o").replace("ù","u").replace("'","");
+
+            SpuntaDocumentoEntity doc = new SpuntaDocumentoEntity();
+            doc.fileName = fileName;
+            doc.docsName = docsName;
+            doc.tipoDoc = tipo;
+            doc.store = magazzino != null ? magazzino : "";
+            doc.fornitore = forn;
+            doc.utente = utente != null ? utente : "";
+            doc.ipNeg = ipNeg != null ? ipNeg : "";
+            doc.mag = mag;
+            doc.listino = listino;
+            doc.segnaC = segnaC != null ? segnaC : "";
+
+            long docId = dao.insertDocumento(doc);
+            idSpuntaDocRoom = docId;
+
+            ArrayList<String> tempCodArt = new ArrayList<>();
+            ArrayList<String> tempQta = new ArrayList<>();
+            ArrayList<String> tempIdDoc = new ArrayList<>();
+            ArrayList<String> tempNumDoc2 = new ArrayList<>();
+            ArrayList<String> tempDesc2 = new ArrayList<>();
+            ArrayList<String> tempCosto2 = new ArrayList<>();
+
+            for(int i=0; i<codArt.size(); i++){
+                boolean ce = false;
+                if(i == 0){
+                    tempCodArt.add(codArt.get(i));
+                    tempQta.add(qta.get(i));
+                    tempIdDoc.add(idDoc.get(i));
+                    tempNumDoc2.add(numDoc.get(i));
+                    tempDesc2.add(desc.get(i));
+                    tempCosto2.add(costo.get(i));
+                }else{
+                    for(int j=0; j<tempCodArt.size(); j++){
+                        if(tempCodArt.get(j).equals(codArt.get(i)) && tempIdDoc.get(j).equals(idDoc.get(i))){
+                            int qDaAgg = Integer.parseInt(qta.get(i));
+                            int qPres = Integer.parseInt(tempQta.get(j));
+                            tempQta.set(j, String.valueOf(qDaAgg + qPres));
+                            ce = true;
+                            break;
+                        }
+                    }
+                    if(!ce){
+                        tempCodArt.add(codArt.get(i));
+                        tempQta.add(qta.get(i));
+                        tempIdDoc.add(idDoc.get(i));
+                        tempNumDoc2.add(numDoc.get(i));
+                        tempDesc2.add(desc.get(i));
+                        tempCosto2.add(costo.get(i));
+                    }
+                }
+            }
+
+            String storeXFile = "";
+            switch(mag){
+                case 1: storeXFile = "MasterMag"; break;
+                case 77: storeXFile = "SESTU"; break;
+                case 35: storeXFile = "MARCONI"; break;
+                case 72: storeXFile = "PIRRI"; break;
+                case 76: storeXFile = "OLBIA"; break;
+                case 74: storeXFile = "SASSARI"; break;
+                case 32: storeXFile = "NUORO"; break;
+                case 78: storeXFile = "CARBONIA"; break;
+                case 75: storeXFile = "TORTOLI"; break;
+                case 71: storeXFile = "ORISTANO"; break;
+                case 85: storeXFile = "Tiburtina"; break;
+                case 87: storeXFile = "Capena"; break;
+                case 86: storeXFile = "Ostiense"; break;
+                case 59: storeXFile = "INLAVORAZIONE"; break;
+                case 90: storeXFile = "Casilina"; break;
+                case 94: storeXFile = "Pomezia"; break;
+                case 112: storeXFile = "Ardeatina"; break;
+                case 114: storeXFile = "Verona"; break;
+                case 111: storeXFile = "RomaCedi"; break;
+                case 91: storeXFile = "MasterMagRoma"; break;
+                case 88: storeXFile = "INTRANSITO"; break;
+                case 89: storeXFile = "INTEMPORANEO"; break;
+                case 93: storeXFile = "CEDIROMAINLAV"; break;
+            }
+
+            List<SpuntaRigaEntity> righe = new ArrayList<>();
+            for(int i=0; i<tempCodArt.size(); i++){
+                SpuntaRigaEntity riga = new SpuntaRigaEntity();
+                riga.idSpuntaDoc = docId;
+                riga.codArt = tempCodArt.get(i);
+                riga.desc = tempDesc2.get(i);
+                riga.qtaDoc = Integer.parseInt(tempQta.get(i));
+                riga.qtaSpunta = 0;
+                riga.diff = -Integer.parseInt(tempQta.get(i));
+                riga.nDoc = tempNumDoc2.get(i);
+                riga.store = storeXFile;
+                riga.costo = tempCosto2.get(i);
+                riga.idDocRemoto = tempIdDoc.get(i);
+                righe.add(riga);
+            }
+            dao.insertRighe(righe);
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void salvaRigheInRoomPresa(Runnable onReady){
+        try {
+            AppDb db = AppDb.getInstance(getApplicationContext());
+            SpuntaDao dao = db.spuntaDao();
+
+            SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(thisContext);
+            String nomeP = p.getString("NomePalm","");
+            String forn = fornitore.replace("è","e").replace("é","e")
+                    .replace("à","a").replace("ì","i")
+                    .replace("ò","o").replace("ù","u").replace("'","");
+
+            String docsName = "";
+            String tempnDoc = "";
+            for(int z=0; z<numDoc.size(); z++){
+                if(z==0){
+                    docsName = tipo + "_" + forn + "_" + numDoc.get(0) + "_" + serieDoc.get(0);
+                }else if(!numDoc.get(z).equals(tempnDoc)){
+                    docsName = docsName + "_" + numDoc.get(z) + "_" + serieDoc.get(z);
+                }
+                tempnDoc = numDoc.get(z);
+            }
+            int year = Calendar.getInstance().get(Calendar.YEAR);
+            String fileName = nomeP + "_presa_" + docsName + "_" + year + ".xlsx";
+
+            SpuntaDocumentoEntity docEsistente = dao.getDocumentoByFileName(fileName);
+            if(docEsistente != null){
+                final long idEsistente = docEsistente.id;
+                final String fFileName = fileName;
+                final String fDocsName = docsName;
+                new android.app.AlertDialog.Builder(this)
+                    .setTitle("Presa già in corso")
+                    .setMessage("Questa presa ha già una scansione in corso.\nVuoi continuare o ricominciare da zero?")
+                    .setPositiveButton("Continua", (d, w) -> {
+                        idSpuntaDocRoom = idEsistente;
+                        if(onReady != null) onReady.run();
+                    })
+                    .setNegativeButton("Ricomincia", (d, w) -> {
+                        dao.deleteDocumentoCompleto(idEsistente);
+                        File excelFile = new File("/storage/emulated/0/NAS/PresaGen", fFileName);
+                        if(excelFile.exists()) excelFile.delete();
+                        creaDocumentoPresaInRoom(dao, fFileName, fDocsName);
+                        if(onReady != null) onReady.run();
+                    })
+                    .setCancelable(false)
+                    .show();
+                return;
+            }
+
+            creaDocumentoPresaInRoom(dao, fileName, docsName);
+            if(onReady != null) onReady.run();
+        } catch(Exception e){
+            e.printStackTrace();
+        }
+    }
+
+    private void creaDocumentoPresaInRoom(SpuntaDao dao, String fileName, String docsName){
+        try {
+            String forn = fornitore.replace("è","e").replace("é","e")
+                    .replace("à","a").replace("ì","i")
+                    .replace("ò","o").replace("ù","u").replace("'","");
+
+            SpuntaDocumentoEntity doc = new SpuntaDocumentoEntity();
+            doc.fileName = fileName;
+            doc.docsName = docsName;
+            doc.tipoDoc = tipo;
+            doc.store = magazzino != null ? magazzino : "";
+            doc.fornitore = forn;
+            doc.utente = utente != null ? utente : "";
+            doc.ipNeg = ipNeg != null ? ipNeg : "";
+            doc.mag = mag;
+            doc.listino = listino;
+            doc.segnaC = segnaC != null ? segnaC : "";
+            doc.tipoOperazione = 1;
+
+            long docId = dao.insertDocumento(doc);
+            idSpuntaDocRoom = docId;
+
+                // Aggregazione duplicati
+                ArrayList<String> tempCodArt = new ArrayList<>();
+                ArrayList<String> tempAlias = new ArrayList<>();
+                ArrayList<String> tempQta = new ArrayList<>();
+                ArrayList<String> tempIdDoc = new ArrayList<>();
+                ArrayList<String> tempNumDoc2 = new ArrayList<>();
+                ArrayList<String> tempDesc2 = new ArrayList<>();
+                ArrayList<String> tempUbic = new ArrayList<>();
+                ArrayList<String> tempSubic = new ArrayList<>();
+                ArrayList<String> tempEsist = new ArrayList<>();
+                ArrayList<String> tempImp = new ArrayList<>();
+
+                for(int i=0; i<codArt.size(); i++){
+                    boolean ce = false;
+                    if(i == 0){
+                        tempCodArt.add(codArt.get(i));
+                        tempAlias.add(alias.size() > i ? alias.get(i) : "");
+                        tempQta.add(qta.get(i));
+                        tempIdDoc.add(idDoc.get(i));
+                        tempNumDoc2.add(numDoc.get(i));
+                        tempDesc2.add(desc.get(i));
+                        tempUbic.add(ubicaz.size() > i ? ubicaz.get(i) : "");
+                        tempSubic.add(subic.size() > i ? subic.get(i) : "");
+                        tempEsist.add(esistenza.size() > i ? esistenza.get(i) : "0");
+                        tempImp.add(impegnati.size() > i ? impegnati.get(i) : "0");
+                    }else{
+                        for(int j=0; j<tempCodArt.size(); j++){
+                            if(tempCodArt.get(j).equals(codArt.get(i)) && tempIdDoc.get(j).equals(idDoc.get(i))){
+                                int qDaAgg = Integer.parseInt(qta.get(i));
+                                int qPres = Integer.parseInt(tempQta.get(j));
+                                tempQta.set(j, String.valueOf(qDaAgg + qPres));
+                                ce = true;
+                                break;
+                            }
+                        }
+                        if(!ce){
+                            tempCodArt.add(codArt.get(i));
+                            tempAlias.add(alias.size() > i ? alias.get(i) : "");
+                            tempQta.add(qta.get(i));
+                            tempIdDoc.add(idDoc.get(i));
+                            tempNumDoc2.add(numDoc.get(i));
+                            tempDesc2.add(desc.get(i));
+                            tempUbic.add(ubicaz.size() > i ? ubicaz.get(i) : "");
+                            tempSubic.add(subic.size() > i ? subic.get(i) : "");
+                            tempEsist.add(esistenza.size() > i ? esistenza.get(i) : "0");
+                            tempImp.add(impegnati.size() > i ? impegnati.get(i) : "0");
+                        }
+                    }
+                }
+
+                String storeXFile = "";
+                switch(mag){
+                    case 1: storeXFile = "MasterMag"; break;
+                    case 77: storeXFile = "SESTU"; break;
+                    case 35: storeXFile = "MARCONI"; break;
+                    case 72: storeXFile = "PIRRI"; break;
+                    case 76: storeXFile = "OLBIA"; break;
+                    case 74: storeXFile = "SASSARI"; break;
+                    case 32: storeXFile = "NUORO"; break;
+                    case 78: storeXFile = "CARBONIA"; break;
+                    case 75: storeXFile = "TORTOLI"; break;
+                    case 71: storeXFile = "ORISTANO"; break;
+                    case 85: storeXFile = "Tiburtina"; break;
+                    case 87: storeXFile = "Capena"; break;
+                    case 86: storeXFile = "Ostiense"; break;
+                    case 59: storeXFile = "INLAVORAZIONE"; break;
+                    case 90: storeXFile = "Casilina"; break;
+                    case 94: storeXFile = "Pomezia"; break;
+                    case 112: storeXFile = "Ardeatina"; break;
+                    case 114: storeXFile = "Verona"; break;
+                    case 111: storeXFile = "RomaCedi"; break;
+                    case 91: storeXFile = "MasterMagRoma"; break;
+                    case 88: storeXFile = "INTRANSITO"; break;
+                    case 89: storeXFile = "INTEMPORANEO"; break;
+                    case 93: storeXFile = "CEDIROMAINLAV"; break;
+                }
+
+                List<SpuntaRigaEntity> righe = new ArrayList<>();
+                for(int i=0; i<tempCodArt.size(); i++){
+                    SpuntaRigaEntity riga = new SpuntaRigaEntity();
+                    riga.idSpuntaDoc = docId;
+                    riga.codArt = tempCodArt.get(i);
+                    riga.alias = tempAlias.get(i);
+                    riga.desc = tempDesc2.get(i);
+                    riga.ubic = tempUbic.get(i);
+                    riga.subic = tempSubic.get(i);
+                    riga.qtaDoc = Integer.parseInt(tempQta.get(i));
+                    riga.qtaSpunta = 0;
+                    riga.diff = -Integer.parseInt(tempQta.get(i));
+                    riga.nDoc = tempNumDoc2.get(i);
+                    riga.store = storeXFile;
+                    riga.idDocRemoto = tempIdDoc.get(i);
+                    riga.esistenza = Integer.parseInt(tempEsist.get(i));
+                    riga.impegnati = Integer.parseInt(tempImp.get(i));
+                    righe.add(riga);
+                }
+                dao.insertRighe(righe);
+            } catch(Exception e){
+                e.printStackTrace();
+            }
+    }
+
     public void setRows(){
-        if(spuntaOrPresa == 0){
+        if(spuntaOrPresa == 0 || spuntaOrPresa == 10){
             if(!isOnline){
                 for(int i=0; i<artDoc.size(); i++){
                     codArt.add(artDoc.get(i).getCodArt());
@@ -403,6 +821,7 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
         String z = "";
         Boolean isSuccess = false;
         ResultSet res;
+        int count = 0;
 
         @Override
         protected void onPreExecute(){
@@ -418,6 +837,8 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                 listView.setVisibility(View.VISIBLE);
                 btnSpunta.setVisibility(View.VISIBLE);
                 setRows();
+            }else if(count>0){
+                righeDisc("Errore!","Le righe del documento hanno magazzini discordanti, verrà inviata una segnalazione all'ufficio commerciale");
             }
         }
 
@@ -428,7 +849,8 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                 if (con == null) {
                     z = "Errore di connessione con il server";
                 } else {
-                    String query = "select articolo.nome as codiceArticolo, descrizione, quantita, documento.id, documento.serie, documento.numero \n" +
+                    String query = "select articolo.nome as codiceArticolo, descrizione, quantita, documento.id, documento.serie, documento.numero, rigaDocumento.idMagazzinoDestinazione, " +
+                            "cast(prezzoUnitario as decimal(18,2)) as costoUltimo\n" +
                             "from RigaDocumento join Documento on (RigaDocumento.idMaster = Documento.id) " +
                             "join articolo on (articolo.id = RigaDocumento.idArticolo) " +
                             "where Documento.id is not null " + whereID + whereNum + whereSel +
@@ -436,6 +858,14 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                     Statement stmt = con.createStatement();
                     res = stmt.executeQuery(query);
                     while(res.next()) {
+                        if(res.getString("idMagazzinoDestinazione") == null || res.getInt("idMagazzinoDestinazione")!=mag){
+                            count++;
+                        }
+                        if(res.getString("costoUltimo")!=null){
+                            costo.add(res.getString("costoUltimo"));
+                        }else{
+                            costo.add("0.0");
+                        }
                         codArt.add(res.getString("codiceArticolo"));
                         desc.add(res.getString("descrizione"));
                         qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
@@ -446,6 +876,9 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                     if (!(codArt.isEmpty())) {
                         //z = "Ordine trovato";
                         isSuccess = true;
+                    }if(count > 0){
+                        isSuccess = false;
+
                     }
                 }
             }
@@ -455,9 +888,190 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
             }
             return z;
         }
+        public boolean sendEmail(String[] to, String from, String subject,
+                                        String message, String user, String pass) throws Exception {
+            GMailSender mail = new GMailSender();
+
+            if (user != null && user.length() > 0) {
+                mail.setUser(user);
+                mail.setFrom(from);
+            } else {
+                mail.setUser("User");
+                mail.setFrom("From");
+            }
+
+            if (pass != null && pass.length() > 0) {
+                mail.setPassword(pass);
+            } else {
+                mail.setPassword("Password");
+            }
+
+            if (subject != null && subject.length() > 0) {
+                mail.setSubject(subject);
+            } else {
+                mail.setSubject("Subject");
+            }
+
+            if (message != null && message.length() > 0) {
+                mail.setBody(message);
+            } else {
+                mail.setBody("Message");
+            }
+
+            mail.setTo(to);
+
+            return mail.send();
+        }
+
+        private void righeDisc(String title,String message){
+            android.app.AlertDialog.Builder builder = new android.app.AlertDialog.Builder(context)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        dialog.cancel();
+                        SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
+                        String email = p.getString("Email", "");
+                        String emailPass = p.getString("EmailPass", "");
+
+                        String obj = magazzino + " errore spunta doc " + idXMail;
+                        String msg = "Uno o più documenti con id " + idXMail + " presentano righe con magazzino discordante ";
+                        String[] to = new String[]{"spunte@bdibimbi.it", email};
+                        try {
+                            sendEmail(to,email, obj, msg, email, emailPass);
+                            Intent retHome = new Intent(context, MainActivity.class);
+                            startActivity(retHome);
+                            finish();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            emailError("Errore","E' avvenuto un errore durante l'invio della segnalazione",to, obj, email, emailPass, msg);
+                        }
+                    });
+            android.app.AlertDialog ok = builder.create();
+            ok.show();
+        }
+
+        private void emailError(String title,String message, String[] to, String obj, String email, String emailPass, String msg){
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setNegativeButton("Riprova", ((dialog, which) -> {
+                        try {
+                            sendEmail(to,email, obj, msg, email, emailPass);
+                            alertDisplayer("Attenzione!", "Segnalazione inviata con successo, verrai riportato alla home");
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                            emailError("Errore","E' avvenuto un errore durante l'invio della segnalazione",to, obj, email, emailPass, msg);
+                        }
+                    }));
+            AlertDialog ok = builder.create();
+            ok.show();
+        }
+
+        private void alertDisplayer(String title,String message){
+            AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                    .setTitle(title)
+                    .setMessage(message)
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        dialog.cancel();
+                        Intent retHome = new Intent(context, MainActivity.class);
+                        startActivity(retHome);
+                        finish();
+                    });
+            AlertDialog ok = builder.create();
+            ok.show();
+        }
 
     }
 
+
+    public class FindRowsMioServer extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+        int count = 0;
+
+        @Override
+        protected void onPreExecute(){
+        listView.setVisibility(View.GONE);
+        btnSpunta.setVisibility(View.GONE);
+        pbShowDoc.setVisibility(View.VISIBLE);
+    }
+
+        @Override
+        protected void onPostExecute(String r) {
+        if(isSuccess) {
+            pbShowDoc.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+            btnSpunta.setVisibility(View.VISIBLE);
+            setRows();
+        }
+    }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                String query = "select articolo.nome as codiceArticolo, descrizione, quantita, documento.id, documento.serie, documento.numero, rigaDocumento.idMagazzinoDestinazione, " +
+                        "cast(prezzoUnitario as decimal(18,2)) as costoUltimo\n" +
+                        "from RigaDocumento join Documento on (RigaDocumento.idMaster = Documento.id) " +
+                        "join articolo on (articolo.id = RigaDocumento.idArticolo) " +
+                        "where Documento.id is not null " + whereID + whereNum + whereSel +
+                        " and codiceArticolo not like '.%' and codiceArticolo not like ',%'";
+                Statement stmt = con.createStatement();
+                res = stmt.executeQuery(query);
+                while(res.next()) {
+                    if(res.getString("idMagazzinoDestinazione") == null || res.getInt("idMagazzinoDestinazione")!=mag){
+                        count++;
+                    }
+                    if(res.getString("costoUltimo")!=null){
+                        costo.add(res.getString("costoUltimo"));
+                    }else{
+                        costo.add("0.0");
+                    }
+                    codArt.add(res.getString("codiceArticolo"));
+                    desc.add(res.getString("descrizione"));
+                    qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                    idDoc.add(res.getString("id"));
+                    serieDoc.add(res.getString("serie"));
+                    numDoc.add(res.getString("numero"));
+                }
+                if (!(codArt.isEmpty())) {
+                    //z = "Ordine trovato";
+                    isSuccess = true;
+                }
+            }
+        }
+        catch (Exception ex) {
+            isSuccess = false;
+            z = "Errore";
+        }
+        return z;
+    }
+
+    }
     public class FindRows4Print extends AsyncTask<String,String,String> {
         String z = "";
         Boolean isSuccess = false;
@@ -587,6 +1201,68 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
 
     }
 
+    public class FindRowsControlli extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+        int count = 0;
+
+        @Override
+        protected void onPreExecute(){
+            listView.setVisibility(View.GONE);
+            btnSpunta.setVisibility(View.GONE);
+            pbShowDoc.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String r) {
+            if(isSuccess) {
+                pbShowDoc.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                btnSpunta.setVisibility(View.VISIBLE);
+                setRows();
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            try {
+                Connection con = connectionClass.CONN(thisContext);
+                if (con == null) {
+                    z = "Errore di connessione con il server";
+                } else {
+                    String query = "select articolo.nome as codiceArticolo, descrizione, " +
+                            "(select esistenza from progressivoarticolo where metaarticolo = articolo.id and metamagazzino = "+mag+" and da<GETDATE() and a>GETDATE() ) as esistenza, " +
+                            "documento.id, documento.serie, documento.numero, rigaDocumento.idMagazzinoDestinazione \n" +
+                            "from RigaDocumento join Documento on (RigaDocumento.idMaster = Documento.id) " +
+                            "join articolo on (articolo.id = RigaDocumento.idArticolo) " +
+                            "where Documento.id is not null " + whereID + whereNum + whereSel +
+                            " and codiceArticolo not like '.%' and codiceArticolo not like ',%'";
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                    while(res.next()) {
+                        codArt.add(res.getString("codiceArticolo"));
+                        desc.add(res.getString("descrizione"));
+                        qta.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                        idDoc.add(res.getString("id"));
+                        serieDoc.add(res.getString("serie"));
+                        numDoc.add(res.getString("numero"));
+                    }
+                    if (!(codArt.isEmpty())) {
+                        //z = "Ordine trovato";
+                        isSuccess = true;
+                    }
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+
+    }
+
     public class FindRowsPresa extends AsyncTask<String,String,String> {
         String z = "";
         Boolean isSuccess = false;
@@ -621,50 +1297,50 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                     String query = "";
                     if(ordinamento==0){
                         query = "SELECT articolo.nome AS codiceArticolo,\n" +
-                                "            articolo.descrizione,\n" +
-                                "            quantita,\n" +
-                                "            Documento.id,\n" +
-                                "            Documento.serie,\n" +
-                                "            Documento.numero,\n" +
-                                "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
-                                "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
-                                "            alias.codice,\n" +
-                                "            RigaDocumento.id AS idRiga,\n" +
-                                "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
-                                "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                                "articolo.descrizione,\n" +
+                                "quantita,\n" +
+                                "Documento.id,\n" +
+                                "Documento.serie,\n" +
+                                "Documento.numero,\n" +
+                                "(SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                                "(SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                                "alias.codice,\n" +
+                                "RigaDocumento.id AS idRiga,\n" +
+                                "(SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                                "(SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
                                 "FROM RigaDocumento\n" +
-                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
-                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
-                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
-                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
                                 "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
-                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
-                                "            and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
+                                "AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
                                 "order by ubicazione, codiceArticolo";
                     } else {
                         query = "SELECT articolo.nome AS codiceArticolo,\n" +
-                                "            articolo.descrizione,\n" +
-                                "            quantita,\n" +
-                                "            Documento.id,\n" +
-                                "            Documento.serie,\n" +
-                                "            Documento.numero,\n" +
-                                "            (select substring(ubicazione, 4, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as piano, " +
-                                "            (select substring(ubicazione, 1, 2) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as corsia, " +
-                                "            (select substring(ubicazione, 3, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as colonna, " +
-                                "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
-                                "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
-                                "            alias.codice,\n" +
-                                "            RigaDocumento.id AS idRiga,\n" +
-                                "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
-                                "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                                "articolo.descrizione,\n" +
+                                "quantita,\n" +
+                                "Documento.id,\n" +
+                                "Documento.serie,\n" +
+                                "Documento.numero,\n" +
+                                "(select substring(ubicazione, 4, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as piano, " +
+                                "(select substring(ubicazione, 1, 2) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as corsia, " +
+                                "(select substring(ubicazione, 3, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as colonna, " +
+                                "(SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                                "(SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                                "alias.codice,\n" +
+                                "RigaDocumento.id AS idRiga,\n" +
+                                "(SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                                "(SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
                                 "FROM RigaDocumento\n" +
-                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
-                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
-                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
-                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
                                 "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
-                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
-                                "            and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
+                                "AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
                                 "order by corsia, piano, colonna, codiceArticolo";
                     }
                     Statement stmt = con.createStatement();
@@ -762,6 +1438,697 @@ public class ShowDoc extends AppCompatActivity implements Serializable {
                                 impegnatiApp.add("0");
                             }
                             esistenzaApp.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                        }
+                        i++;
+                        riga = res.getInt("idRiga");
+                    }
+                    for(int j=0; j<codArtApp.size(); j++){
+                        Boolean present = false;
+                        for(int p=0; p<codArt.size(); p++){
+                            if(codArtApp.get(j).equals(codArt.get(p))){
+                                present = true;
+                            }
+                        }
+                        if(!present){
+                            codArt.add(codArtApp.get(j));
+                            alias.add(aliasApp.get(j));
+                            desc.add(descApp.get(j));
+                            qta.add(qtaApp.get(j));
+                            idDoc.add(idDocApp.get(j));
+                            serieDoc.add(serieApp.get(j));
+                            numDoc.add(numDocApp.get(j));
+                            ubicaz.add(ubicazApp.get(j));
+                            subic.add(subicApp.get(j));
+                            idR.add(idRApp.get(j));
+                            impegnati.add(impegnatiApp.get(j));
+                            esistenza.add(esistenzaApp.get(j));
+                        }
+                    }
+                    if (!(codArt.isEmpty())) {
+                        //z = "Ordine trovato";
+                        isSuccess = true;
+                    }
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+
+    }
+
+    public class FindRowsPresaMioServer extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+
+        @Override
+        protected void onPreExecute(){
+            listView.setVisibility(View.GONE);
+            btnSpunta.setVisibility(View.GONE);
+            pbShowDoc.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String r) {
+        if(isSuccess) {
+            pbShowDoc.setVisibility(View.GONE);
+            listView.setVisibility(View.VISIBLE);
+            btnSpunta.setVisibility(View.VISIBLE);
+            setRows();
+        }else{
+            pbShowDoc.setVisibility(View.GONE);
+        }
+    }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                String query = "";
+                if(ordinamento==0){
+                    query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                            "            articolo.descrizione,\n" +
+                            "            quantita,\n" +
+                            "            Documento.id,\n" +
+                            "            Documento.serie,\n" +
+                            "            Documento.numero,\n" +
+                            "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                            "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                            "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                            "            alias.codice,\n" +
+                            "            RigaDocumento.id AS idRiga,\n" +
+                            "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                            "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                            "FROM RigaDocumento\n" +
+                            "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                            "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                            "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                            "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                            "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                            "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                            "            and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
+                            "order by ubicazione, codiceArticolo";
+                } else {
+                    query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                            "            articolo.descrizione,\n" +
+                            "            quantita,\n" +
+                            "            Documento.id,\n" +
+                            "            Documento.serie,\n" +
+                            "            Documento.numero,\n" +
+                            "            (select substring(ubicazione, 4, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as piano, " +
+                            "            (select substring(ubicazione, 1, 2) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as corsia, " +
+                            "            (select substring(ubicazione, 3, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as colonna, " +
+                            "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                            "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                            "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                            "            alias.codice,\n" +
+                            "            RigaDocumento.id AS idRiga,\n" +
+                            "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                            "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                            "FROM RigaDocumento\n" +
+                            "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                            "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                            "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                            "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                            "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                            "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                            "            and (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND esistenza > 0 AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE())>0 " +
+                            "order by corsia, piano, colonna, codiceArticolo";
+                }
+                Statement stmt = con.createStatement();
+                res = stmt.executeQuery(query);
+                ArrayList<String> serieApp = new ArrayList<>();
+                ArrayList<String> codArtApp = new ArrayList<>();
+                ArrayList<String> aliasApp = new ArrayList<>();
+                ArrayList<String> descApp = new ArrayList<>();
+                ArrayList<String> qtaApp = new ArrayList<>();
+                ArrayList<String> idDocApp = new ArrayList<>();
+                ArrayList<String> numDocApp = new ArrayList<>();
+                ArrayList<String> ubicazApp = new ArrayList<>();
+                ArrayList<String> subicApp = new ArrayList<>();
+                ArrayList<String> esistenzaApp = new ArrayList<>();
+                ArrayList<String> impegnatiApp = new ArrayList<>();
+                ArrayList<String> idR = new ArrayList<>();
+                ArrayList<String> idRApp = new ArrayList<>();
+                int riga = 0;
+                int i = 0;
+                while(res.next()) {
+                    if(res.getString("ubicazione")==null){
+                        Boolean presente = false;
+                        for(int k=0; k<idR.size(); k++){
+                            if(idR.get(k).equals(res.getString("idRiga"))){
+                                presente = true;
+                            }
+                        }if(!presente){
+                            codArt.add(res.getString("codiceArticolo"));
+                            if(res.getString("codice")!=null){
+                                alias.add(res.getString("codice"));
+                            }else{
+                                alias.add("");
+                            }
+                            desc.add(res.getString("descrizione"));
+                            qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                            idDoc.add(res.getString("id"));
+                            serieDoc.add(res.getString("serie"));
+                            numDoc.add(res.getString("numero"));
+                            ubicaz.add("");
+                            subic.add("");
+                            idR.add(res.getString("idRiga"));
+                            if(res.getString("impegnati")!=null){
+                                impegnati.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                            }else{
+                                impegnati.add("0");
+                            }
+                            esistenza.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                        }
+                    }else if(res.getString("ubicazione").length()>0){
+                        Boolean presente = false;
+                        for(int k=0; k<idR.size(); k++){
+                            if(idR.get(k).equals(res.getString("idRiga"))){
+                                presente = true;
+                            }
+                        }if(!presente){
+                            codArt.add(res.getString("codiceArticolo"));
+                            if(res.getString("codice")!=null){
+                                alias.add(res.getString("codice"));
+                            }else{
+                                alias.add("");
+                            }
+                            desc.add(res.getString("descrizione"));
+                            qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                            idDoc.add(res.getString("id"));
+                            serieDoc.add(res.getString("serie"));
+                            numDoc.add(res.getString("numero"));
+                            ubicaz.add(res.getString("ubicazione"));
+                            subic.add(res.getString("sottoubicazione"));
+                            idR.add(res.getString("idRiga"));
+                            if(res.getString("impegnati")!=null){
+                                impegnati.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                            }else{
+                                impegnati.add("0");
+                            }
+                            esistenza.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                        }
+                    }else{
+                        codArtApp.add(res.getString("codiceArticolo"));
+                        if(res.getString("codice")!=null){
+                            aliasApp.add(res.getString("codice"));
+                        }else{
+                            aliasApp.add("");
+                        }
+                        descApp.add(res.getString("descrizione"));
+                        qtaApp.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                        idDocApp.add(res.getString("id"));
+                        serieApp.add(res.getString("serie"));
+                        numDocApp.add(res.getString("numero"));
+                        ubicazApp.add(res.getString("ubicazione"));
+                        subicApp.add(res.getString("sottoubicazione"));
+                        idRApp.add(res.getString("idRiga"));
+                        if(res.getString("impegnati")!=null){
+                            impegnatiApp.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                        }else{
+                            impegnatiApp.add("0");
+                        }
+                        esistenzaApp.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                    }
+                    i++;
+                    riga = res.getInt("idRiga");
+                }
+                for(int j=0; j<codArtApp.size(); j++){
+                    Boolean present = false;
+                    for(int p=0; p<codArt.size(); p++){
+                        if(codArtApp.get(j).equals(codArt.get(p))){
+                            present = true;
+                        }
+                    }
+                    if(!present){
+                        codArt.add(codArtApp.get(j));
+                        alias.add(aliasApp.get(j));
+                        desc.add(descApp.get(j));
+                        qta.add(qtaApp.get(j));
+                        idDoc.add(idDocApp.get(j));
+                        serieDoc.add(serieApp.get(j));
+                        numDoc.add(numDocApp.get(j));
+                        ubicaz.add(ubicazApp.get(j));
+                        subic.add(subicApp.get(j));
+                        idR.add(idRApp.get(j));
+                        impegnati.add(impegnatiApp.get(j));
+                        esistenza.add(esistenzaApp.get(j));
+                    }
+                }
+                if (!(codArt.isEmpty())) {
+                    //z = "Ordine trovato";
+                    isSuccess = true;
+                }
+            }
+        }
+        catch (Exception ex) {
+            isSuccess = false;
+            z = "Errore";
+        }
+        return z;
+    }
+
+    }
+
+    public class FindRowsPresaTot extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+
+        @Override
+        protected void onPreExecute(){
+            listView.setVisibility(View.GONE);
+            btnSpunta.setVisibility(View.GONE);
+            pbShowDoc.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String r) {
+            if(isSuccess) {
+                pbShowDoc.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                btnSpunta.setVisibility(View.VISIBLE);
+                setRows();
+            }else{
+                pbShowDoc.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "";
+                    if(ordinamento==0){
+                        query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                                "            articolo.descrizione,\n" +
+                                "            quantita,\n" +
+                                "            Documento.id,\n" +
+                                "            Documento.serie,\n" +
+                                "            Documento.numero,\n" +
+                                "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                                "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                                "            alias.codice,\n" +
+                                "            RigaDocumento.id AS idRiga,\n" +
+                                "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                                "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                                "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                                "FROM RigaDocumento\n" +
+                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "order by ubicazione, codiceArticolo";
+                    } else {
+                        query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                                "            articolo.descrizione,\n" +
+                                "            quantita,\n" +
+                                "            Documento.id,\n" +
+                                "            Documento.serie,\n" +
+                                "            Documento.numero,\n" +
+                                "            (select substring(ubicazione, 4, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as piano, " +
+                                "            (select substring(ubicazione, 1, 2) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as corsia, " +
+                                "            (select substring(ubicazione, 3, 1) from articoloxmagazzino where articoloxmagazzino.idArticolo = articolo.id and idMagazzino = '"+magRif+"') as colonna, " +
+                                "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                                "            (SELECT ubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS ubicazione,\n" +
+                                "            (SELECT sottoubicazione FROM articoloxmagazzino WHERE articoloxmagazzino.idArticolo = articolo.id AND idMagazzino = '"+magRif+"') AS sottoubicazione,\n" +
+                                "            alias.codice,\n" +
+                                "            RigaDocumento.id AS idRiga,\n" +
+                                "            (SELECT esistenza FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS esistenza,\n" +
+                                "            (SELECT OrdinatoClienteArticoloXMagazzino FROM progressivoarticolo WHERE metaarticolo=articolo.id AND metamagazzino = '"+magRif+"' AND da < GETDATE() AND a > GETDATE()) AS impegnati\n" +
+                                "FROM RigaDocumento\n" +
+                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "order by corsia, piano, colonna, codiceArticolo";
+                    }
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                    ArrayList<String> serieApp = new ArrayList<>();
+                    ArrayList<String> codArtApp = new ArrayList<>();
+                    ArrayList<String> aliasApp = new ArrayList<>();
+                    ArrayList<String> descApp = new ArrayList<>();
+                    ArrayList<String> qtaApp = new ArrayList<>();
+                    ArrayList<String> idDocApp = new ArrayList<>();
+                    ArrayList<String> numDocApp = new ArrayList<>();
+                    ArrayList<String> ubicazApp = new ArrayList<>();
+                    ArrayList<String> subicApp = new ArrayList<>();
+                    ArrayList<String> esistenzaApp = new ArrayList<>();
+                    ArrayList<String> impegnatiApp = new ArrayList<>();
+                    ArrayList<String> idR = new ArrayList<>();
+                    ArrayList<String> idRApp = new ArrayList<>();
+                    int riga = 0;
+                    int i = 0;
+                    while(res.next()) {
+                        if(res.getString("ubicazione")==null){
+                            Boolean presente = false;
+                            for(int k=0; k<idR.size(); k++){
+                                if(idR.get(k).equals(res.getString("idRiga"))){
+                                    presente = true;
+                                }
+                            }if(!presente){
+                                codArt.add(res.getString("codiceArticolo"));
+                                if(res.getString("codice")!=null){
+                                    alias.add(res.getString("codice"));
+                                }else{
+                                    alias.add("");
+                                }
+                                desc.add(res.getString("descrizione"));
+                                qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                                idDoc.add(res.getString("id"));
+                                serieDoc.add(res.getString("serie"));
+                                numDoc.add(res.getString("numero"));
+                                ubicaz.add("");
+                                subic.add("");
+                                idR.add(res.getString("idRiga"));
+                                if(res.getString("impegnati")!=null){
+                                    impegnati.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                                }else{
+                                    impegnati.add("0");
+                                }
+                                esistenza.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                            }
+                        }else if(res.getString("ubicazione").length()>0){
+                            Boolean presente = false;
+                            for(int k=0; k<idR.size(); k++){
+                                if(idR.get(k).equals(res.getString("idRiga"))){
+                                    presente = true;
+                                }
+                            }if(!presente){
+                                codArt.add(res.getString("codiceArticolo"));
+                                if(res.getString("codice")!=null){
+                                    alias.add(res.getString("codice"));
+                                }else{
+                                    alias.add("");
+                                }
+                                desc.add(res.getString("descrizione"));
+                                qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                                idDoc.add(res.getString("id"));
+                                serieDoc.add(res.getString("serie"));
+                                numDoc.add(res.getString("numero"));
+                                ubicaz.add(res.getString("ubicazione"));
+                                subic.add(res.getString("sottoubicazione"));
+                                idR.add(res.getString("idRiga"));
+                                if(res.getString("impegnati")!=null){
+                                    impegnati.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                                }else{
+                                    impegnati.add("0");
+                                }
+                                esistenza.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                            }
+                        }else{
+                            codArtApp.add(res.getString("codiceArticolo"));
+                            if(res.getString("codice")!=null){
+                                aliasApp.add(res.getString("codice"));
+                            }else{
+                                aliasApp.add("");
+                            }
+                            descApp.add(res.getString("descrizione"));
+                            qtaApp.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                            idDocApp.add(res.getString("id"));
+                            serieApp.add(res.getString("serie"));
+                            numDocApp.add(res.getString("numero"));
+                            ubicazApp.add(res.getString("ubicazione"));
+                            subicApp.add(res.getString("sottoubicazione"));
+                            idRApp.add(res.getString("idRiga"));
+                            if(res.getString("impegnati")!=null){
+                                impegnatiApp.add(res.getString("impegnati").substring(0,res.getString("impegnati").indexOf(".")));
+                            }else{
+                                impegnatiApp.add("0");
+                            }
+                            esistenzaApp.add(res.getString("esistenza").substring(0,res.getString("esistenza").indexOf(".")));
+                        }
+                        i++;
+                        riga = res.getInt("idRiga");
+                    }
+                    for(int j=0; j<codArtApp.size(); j++){
+                        Boolean present = false;
+                        for(int p=0; p<codArt.size(); p++){
+                            if(codArtApp.get(j).equals(codArt.get(p))){
+                                present = true;
+                            }
+                        }
+                        if(!present){
+                            codArt.add(codArtApp.get(j));
+                            alias.add(aliasApp.get(j));
+                            desc.add(descApp.get(j));
+                            qta.add(qtaApp.get(j));
+                            idDoc.add(idDocApp.get(j));
+                            serieDoc.add(serieApp.get(j));
+                            numDoc.add(numDocApp.get(j));
+                            ubicaz.add(ubicazApp.get(j));
+                            subic.add(subicApp.get(j));
+                            idR.add(idRApp.get(j));
+                            impegnati.add(impegnatiApp.get(j));
+                            esistenza.add(esistenzaApp.get(j));
+                        }
+                    }
+                    if (!(codArt.isEmpty())) {
+                        //z = "Ordine trovato";
+                        isSuccess = true;
+                    }
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+
+    }
+
+    public class FindRowsPresaTotMioServer extends AsyncTask<String,String,String> {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+
+        @Override
+        protected void onPreExecute(){
+            listView.setVisibility(View.GONE);
+            btnSpunta.setVisibility(View.GONE);
+            pbShowDoc.setVisibility(View.VISIBLE);
+        }
+
+        @Override
+        protected void onPostExecute(String r) {
+            if(isSuccess) {
+                pbShowDoc.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                btnSpunta.setVisibility(View.VISIBLE);
+                setRows();
+            }else{
+                pbShowDoc.setVisibility(View.GONE);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "";
+                    if(ordinamento==0){
+                        query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                                "            articolo.descrizione,\n" +
+                                "            quantita,\n" +
+                                "            Documento.id,\n" +
+                                "            Documento.serie,\n" +
+                                "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                                "            Documento.numero,\n" +
+                                "            alias.codice,\n" +
+                                "            RigaDocumento.id AS idRiga \n" +
+                                "FROM RigaDocumento\n" +
+                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "order by ubicazione, codiceArticolo";
+                    } else {
+                        query = "SELECT articolo.nome AS codiceArticolo,\n" +
+                                "            articolo.descrizione,\n" +
+                                "            quantita,\n" +
+                                "            Documento.id,\n" +
+                                "cast(RigaDocumento.prezzoUnitario as decimal(18,2)) as costoUltimo,\n" +
+                                "            Documento.serie,\n" +
+                                "            Documento.numero,\n" +
+                                "            alias.codice,\n" +
+                                "            RigaDocumento.id AS idRiga \n" +
+                                "FROM RigaDocumento\n" +
+                                "            JOIN Documento ON (RigaDocumento.idMaster = Documento.id)\n" +
+                                "            JOIN Articolo ON (articolo.id = RigaDocumento.idArticolo)\n" +
+                                "            LEFT JOIN ArticoloxMagazzino ON (Articolo.id = ArticoloXMagazzino.idArticolo)\n" +
+                                "            LEFT JOIN Alias ON (alias.idArticolo = Articolo.id)\n" +
+                                "WHERE Documento.id IS NOT NULL\n" + whereID + whereNum + whereSel +
+                                "            AND codiceArticolo NOT IN ('.%',',%')\n" +
+                                "order by corsia, piano, colonna, codiceArticolo";
+                    }
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                    ArrayList<String> serieApp = new ArrayList<>();
+                    ArrayList<String> codArtApp = new ArrayList<>();
+                    ArrayList<String> aliasApp = new ArrayList<>();
+                    ArrayList<String> descApp = new ArrayList<>();
+                    ArrayList<String> qtaApp = new ArrayList<>();
+                    ArrayList<String> idDocApp = new ArrayList<>();
+                    ArrayList<String> numDocApp = new ArrayList<>();
+                    ArrayList<String> ubicazApp = new ArrayList<>();
+                    ArrayList<String> subicApp = new ArrayList<>();
+                    ArrayList<String> esistenzaApp = new ArrayList<>();
+                    ArrayList<String> impegnatiApp = new ArrayList<>();
+                    ArrayList<String> idR = new ArrayList<>();
+                    ArrayList<String> idRApp = new ArrayList<>();
+                    int riga = 0;
+                    int i = 0;
+                    while(res.next()) {
+                        if(res.getString("idRiga")==null){
+                            Boolean presente = false;
+                            for(int k=0; k<idR.size(); k++){
+                                if(idR.get(k).equals(res.getString("idRiga"))){
+                                    presente = true;
+                                }
+                            }if(!presente){
+                                codArt.add(res.getString("codiceArticolo"));
+                                if(res.getString("codice")!=null){
+                                    alias.add(res.getString("codice"));
+                                }else{
+                                    alias.add("");
+                                }
+                                desc.add(res.getString("descrizione"));
+                                qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                                idDoc.add(res.getString("id"));
+                                serieDoc.add(res.getString("serie"));
+                                numDoc.add(res.getString("numero"));
+                                ubicaz.add("");
+                                subic.add("");
+                                idR.add(res.getString("idRiga"));
+
+                                impegnati.add("0");
+
+                                esistenza.add("0");
+                            }
+                        }else if(res.getString("idRiga").length()>0){
+                            Boolean presente = false;
+                            for(int k=0; k<idR.size(); k++){
+                                if(idR.get(k).equals(res.getString("idRiga"))){
+                                    presente = true;
+                                }
+                            }if(!presente){
+                                codArt.add(res.getString("codiceArticolo"));
+                                if(res.getString("codice")!=null){
+                                    alias.add(res.getString("codice"));
+                                }else{
+                                    alias.add("");
+                                }
+                                desc.add(res.getString("descrizione"));
+                                qta.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                                idDoc.add(res.getString("id"));
+                                serieDoc.add(res.getString("serie"));
+                                numDoc.add(res.getString("numero"));
+                                ubicaz.add(" ");
+                                subic.add( " ");
+                                idR.add(res.getString("idRiga"));
+
+                                impegnati.add("0");
+                                esistenza.add(" ");
+                            }
+                        }else{
+                            codArtApp.add(res.getString("codiceArticolo"));
+                            if(res.getString("codice")!=null){
+                                aliasApp.add(res.getString("codice"));
+                            }else{
+                                aliasApp.add("");
+                            }
+                            descApp.add(res.getString("descrizione"));
+                            qtaApp.add(res.getString("quantita").substring(0,res.getString("quantita").indexOf(".")));
+                            idDocApp.add(res.getString("id"));
+                            serieApp.add(res.getString("serie"));
+                            numDocApp.add(res.getString("numero"));
+                            ubicazApp.add(" ");
+                            subicApp.add(" ");
+                            idRApp.add(res.getString("idRiga"));
+
+                            impegnatiApp.add("0");
+                            esistenzaApp.add("0");
                         }
                         i++;
                         riga = res.getInt("idRiga");

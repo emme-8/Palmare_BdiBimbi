@@ -1,3 +1,2 @@
-include ':RFIDAPI3Library'
 include ':app'
 rootProject.name = "Palmare BDiBimbi"

@@ -32,7 +32,30 @@
                 android:minHeight="48dp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:nextFocusDown="@+id/edtTxtCodArtCD"
+                android:nextFocusLeft="@+id/edtTxtCodArtCD"
+                android:nextFocusRight="@+id/edtTxtCodArtCD"
+                android:nextFocusUp="@+id/edtTxtCodArtCD"  />
+
+            <EditText
+                android:id="@+id/insQtaND"
+                android:layout_width="75dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:ems="10"
+                android:inputType="numberSigned"
+                android:minHeight="48dp"
+                android:selectAllOnFocus="true"
+                android:text="1"
+                android:textAlignment="center"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtDescCD"
+                android:nextFocusDown="@+id/edtTxtCodArtCD"
+                android:nextFocusLeft="@+id/edtTxtCodArtCD"
+                android:nextFocusRight="@+id/edtTxtCodArtCD"
+                android:nextFocusUp="@+id/edtTxtCodArtCD"/>
 
             <Button
                 android:id="@+id/btnCD"
@@ -58,21 +81,6 @@
                 app:layout_constraintStart_toEndOf="@+id/insQtaND"
                 app:layout_constraintTop_toBottomOf="@+id/txtDescCD" />
 
-            <EditText
-                android:id="@+id/insQtaND"
-                android:layout_width="75dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:ems="10"
-                android:inputType="numberSigned"
-                android:minHeight="48dp"
-                android:selectAllOnFocus="true"
-                android:text="1"
-                android:textAlignment="center"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtDescCD" />
-
 
             <EditText
                 android:id="@+id/insUbi2Inv"
@@ -94,12 +102,11 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
                 android:ems="10"
                 android:gravity="start|top"
                 android:hint="Note"
                 android:inputType="textMultiLine"
-                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/insUbi2Inv"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/insUbi1Inv" />
 
@@ -135,7 +142,7 @@
                 android:text="CONCLUDI INVENTARIO"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/txtQtaPrec" />
+                app:layout_constraintTop_toBottomOf="@+id/btnInvChgUbic" />
 
             <TextView
                 android:id="@+id/txtEsInvOff"
@@ -215,6 +222,30 @@
                 android:textColor="@android:color/holo_red_light"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/txtDescCD" />
+
+            <Button
+                android:id="@+id/btnInvChgUbic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                android:layout_marginEnd="16dp"
+                android:text="CAMBIA UBICAZIONE"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/txtQtaPrec" />
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/btnInfoUbis"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                app:backgroundTint="@color/colorPrimary"
+                app:layout_constraintBottom_toBottomOf="@+id/edtTxtNoteInv"
+                app:layout_constraintEnd_toEndOf="@+id/insNSp"
+                app:layout_constraintStart_toStartOf="@+id/insNSp"
+                app:layout_constraintTop_toTopOf="@+id/edtTxtNoteInv"
+                app:srcCompat="@drawable/iconsinformation" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

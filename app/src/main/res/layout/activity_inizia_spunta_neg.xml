@@ -12,18 +12,18 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:textAlignment="center"
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtInsEANNeg" />
+        app:layout_constraintTop_toBottomOf="@+id/btnInfoOXP" />
 
     <TextView
         android:id="@+id/txtShowDescNeg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="2dp"
-        android:layout_marginTop="12dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="2dp"
         android:textAlignment="center"
         android:textSize="15sp"
@@ -31,69 +31,25 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/txtShowCodArtNeg" />
 
-    <TextView
-        android:id="@+id/textView8Neg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="12dp"
-        android:text="Qtà Doc"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNeg" />
-
-    <TextView
-        android:id="@+id/textView9Neg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="8dp"
-        android:text="Qta Letta"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNeg" />
-
-    <TextView
-        android:id="@+id/txtQtaDocNeg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView8Neg"
-        app:layout_constraintStart_toStartOf="@+id/textView8Neg"
-        app:layout_constraintTop_toBottomOf="@+id/textView8Neg" />
-
-    <TextView
-        android:id="@+id/txtQtaLPNeg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView9Neg"
-        app:layout_constraintStart_toStartOf="@+id/textView9Neg"
-        app:layout_constraintTop_toBottomOf="@+id/textView9Neg" />
-
     <EditText
         android:id="@+id/insNColliSpuntaNeg"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:ems="10"
-        android:inputType="number"
+        android:inputType="numberSigned"
         android:text="1"
         android:textAlignment="center"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtEsSpNeg" />
+        app:layout_constraintTop_toBottomOf="@+id/layInfo" />
 
     <EditText
         android:id="@+id/insQtaSpuntaNeg"
         android:layout_width="150dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:ems="10"
         android:inputType="numberSigned"
@@ -127,11 +83,143 @@
         android:id="@+id/btnSearchThisArtNeg"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="24dp"
+        android:layout_marginEnd="8dp"
         android:text=">"
         app:layout_constraintBottom_toBottomOf="@+id/txtInsEANNeg"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/txtInsEANNeg" />
+
+    <LinearLayout
+        android:id="@+id/layInfo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:orientation="vertical"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNeg">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView8Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Qtà Doc"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView10Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OF"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView63"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Scorta"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView7Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Esistenza"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView11Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="OC"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/textView9Neg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Qta Letta"
+                android:textAlignment="center"
+                android:textSize="15sp"
+                android:textStyle="bold" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtQtaDocNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtOrdFNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtScortaNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center" />
+
+            <TextView
+                android:id="@+id/txtEsSpNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtOrdCNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="15sp" />
+
+            <TextView
+                android:id="@+id/txtQtaLPNeg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textAlignment="center"
+                android:textSize="15sp" />
+        </LinearLayout>
+
+    </LinearLayout>
 
     <TextView
         android:id="@+id/lblNCNeg"
@@ -161,90 +249,24 @@
         android:id="@+id/txtInsEANNeg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
         android:ems="10"
         android:hint="Codice EAN"
         android:inputType="textPersonName"
         android:textAllCaps="true"
         android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnInfoOXP"
         app:layout_constraintEnd_toStartOf="@+id/btnSearchThisArtNeg"
-        app:layout_constraintTop_toBottomOf="@+id/chkEtic" />
-
-    <TextView
-        android:id="@+id/textView7Neg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:text="Esistenza"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtShowDescNeg" />
-
-    <TextView
-        android:id="@+id/txtEsSpNeg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toEndOf="@+id/textView7Neg"
-        app:layout_constraintStart_toStartOf="@+id/textView7Neg"
-        app:layout_constraintTop_toBottomOf="@+id/textView7Neg" />
+        app:layout_constraintTop_toTopOf="@+id/btnInfoOXP" />
 
     <TextView
         android:id="@+id/txtPrzArtNeg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="24dp"
         android:textSize="15sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/txtInsEANNeg" />
-
-    <TextView
-        android:id="@+id/textView10Neg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OF"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView8Neg"
-        app:layout_constraintEnd_toStartOf="@+id/textView7Neg"
-        app:layout_constraintStart_toEndOf="@+id/textView8Neg"
-        app:layout_constraintTop_toTopOf="@+id/textView7Neg" />
-
-    <TextView
-        android:id="@+id/textView11Neg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="OC"
-        android:textSize="15sp"
-        android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/textView7Neg"
-        app:layout_constraintEnd_toStartOf="@+id/textView9Neg"
-        app:layout_constraintStart_toEndOf="@+id/textView7Neg"
-        app:layout_constraintTop_toTopOf="@+id/textView9Neg" />
-
-    <TextView
-        android:id="@+id/txtOrdFNeg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/textView7Neg"
-        app:layout_constraintStart_toEndOf="@+id/textView8Neg"
-        app:layout_constraintTop_toBottomOf="@+id/textView10Neg" />
-
-    <TextView
-        android:id="@+id/txtOrdCNeg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:textSize="15sp"
-        app:layout_constraintEnd_toStartOf="@+id/textView9Neg"
-        app:layout_constraintStart_toEndOf="@+id/textView7Neg"
-        app:layout_constraintTop_toBottomOf="@+id/textView11Neg" />
+        app:layout_constraintTop_toBottomOf="@+id/btnInfoOXP" />
 
     <ProgressBar
         android:id="@+id/pbSearchArtNeg"
@@ -260,7 +282,7 @@
         android:id="@+id/radioGroup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="8dp"
         android:orientation="horizontal"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -284,23 +306,23 @@
         android:id="@+id/insQtaSS"
         android:layout_width="50dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="24dp"
+        android:layout_marginEnd="8dp"
         android:ems="10"
         android:inputType="numberSigned"
         android:text="1"
         android:textAlignment="center"
         android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@+id/txtInsEANNeg"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/txtInsEANNeg" />
+        app:layout_constraintBottom_toBottomOf="@+id/btnInfoOXP"
+        app:layout_constraintEnd_toStartOf="@+id/txtInsEANNeg"
+        app:layout_constraintTop_toTopOf="@+id/btnInfoOXP" />
 
     <CheckBox
         android:id="@+id/chkEtic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="16dp"
-        android:text="Stampa Etichette"
+        android:layout_marginTop="8dp"
+        android:text="Stampa"
         android:textSize="15sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
@@ -335,5 +357,108 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:srcCompat="?attr/actionModePasteDrawable" />
+
+    <TextView
+        android:id="@+id/txtSC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="Segnacollo"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        app:layout_constraintBottom_toBottomOf="@+id/insertSC"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/insertSC" />
+
+    <EditText
+        android:id="@+id/insertSC"
+        style="@style/Widget.AppCompat.EditText"
+        android:layout_width="80dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:inputType="textPersonName"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textSize="15sp"
+        app:layout_constraintBottom_toBottomOf="@+id/btnInfoC"
+        app:layout_constraintEnd_toStartOf="@+id/btnInfoC"
+        app:layout_constraintStart_toEndOf="@+id/txtSC"
+        app:layout_constraintTop_toTopOf="@+id/btnInfoC"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/button"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:text="+"
+        app:layout_constraintBottom_toBottomOf="@+id/insertSC"
+        app:layout_constraintStart_toEndOf="@+id/insertSC"
+        app:layout_constraintTop_toTopOf="@+id/insertSC"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/button4"
+        android:layout_width="40dp"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:text="-"
+        app:layout_constraintBottom_toBottomOf="@+id/insertSC"
+        app:layout_constraintEnd_toStartOf="@+id/insertSC"
+        app:layout_constraintTop_toTopOf="@+id/insertSC" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnInfoOXP"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:backgroundTint="#b291c3"
+        android:clickable="true"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toStartOf="@+id/insQtaSS"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insertSC"
+        app:srcCompat="@drawable/iconsinformation" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/btnInfoC"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:clickable="true"
+        app:backgroundTint="@color/colorPrimary"
+        app:fabSize="mini"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/chkEtic"
+        app:srcCompat="@drawable/iconsinformation" />
+
+    <EditText
+        android:id="@+id/editTextText"
+        android:layout_width="150dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="24dp"
+        android:ems="10"
+        android:inputType="text"
+        android:text="0"
+        android:textAlignment="center"
+        android:textSize="15sp"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/insQtaSpuntaNeg" />
+
+    <TextView
+        android:id="@+id/textView64"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:text="Rifornimento"
+        android:textSize="15sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@+id/editTextText"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/editTextText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

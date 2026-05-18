@@ -10,17 +10,21 @@
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.READ_PRIVILEGED_PHONE_STATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.GET_ACCOUNTS" />
     <uses-permission android:name="com.google.android.c2dm.permission.RECEIVE" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
+    <uses-permission
+        android:name="android.permission.MANAGE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
 
     <application
         android:name=".MyApplication"
@@ -31,7 +35,58 @@
         android:roundIcon="@drawable/logoapp"
         android:supportsRtl="true"
         android:theme="@style/Theme.PalmareBDiBimbi"
+        android:usesCleartextTraffic="true"
         tools:replace="android:theme">
+        <activity
+            android:name=".AdapterVerificaSparate"
+            android:exported="false" />
+        <activity
+            android:name=".VerificaSparateActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReviewInvLocal"
+            android:exported="false" />
+        <activity
+            android:name=".NewInvActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ReviewSpuntaWeb"
+            android:exported="false" />
+        <activity
+            android:name=".ShowDocWebActivity"
+            android:exported="false" />
+        <activity
+            android:name=".SelezionaOxWebActivity"
+            android:exported="false" />
+        <activity
+            android:name=".IniziaSpuntaWebActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainSpuntaWEB"
+            android:exported="false" />
+        <activity
+            android:name=".InvCodQta"
+            android:exported="false" />
+        <activity
+            android:name=".ControllaArticolo"
+            android:exported="false" />
+        <activity
+            android:name=".ControlloInventario"
+            android:exported="false" />
+        <activity
+            android:name=".GestionScorteUbic"
+            android:exported="false" />
+        <activity
+            android:name=".GestioneGiftCard"
+            android:exported="false">
+            <meta-data
+                android:name="android.app.lib_name"
+                android:value="" />
+        </activity>
+        <activity
+            android:name=".ListDocsActivity"
+            android:exported="false"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".InvDepOff"
             android:exported="false"

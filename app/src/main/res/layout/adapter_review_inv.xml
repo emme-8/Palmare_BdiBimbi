@@ -94,7 +94,7 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/txtEanRowInv"
+                android:id="@+id/txtAliasRowInv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -182,7 +182,7 @@
             android:paddingBottom="8dp">
 
             <TextView
-                android:id="@+id/txtUbicRev"
+                android:id="@+id/txtUbicRowInv"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -193,7 +193,7 @@
                 android:textSize="16sp" />
 
             <TextView
-                android:id="@+id/txtSubicRev"
+                android:id="@+id/txtImportedStatus"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -210,7 +210,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:text="modifica"
-            android:visibility="gone" />
+            android:visibility="visible" />
 
     </LinearLayout>
 

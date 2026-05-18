@@ -3,3 +3,18 @@
 /app/build/
 /app/build/intermediates/javac/debug/classes/
 /RFIDAPI3Library/build/
+/build/
+
+# Local properties (passwords, SDK path)
+local.properties
+
+# macOS
+.DS_Store
+**/.DS_Store
+
+# JVM crash logs
+hs_err_pid*.log
+replay_pid*.log
+
+# IDE caches
+.idea/caches/

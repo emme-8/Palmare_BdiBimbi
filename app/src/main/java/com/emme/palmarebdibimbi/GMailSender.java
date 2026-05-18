@@ -1,11 +1,6 @@
 package com.emme.palmarebdibimbi;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.security.Security;
 import java.util.Date;
 import java.util.Properties;
 
@@ -15,7 +10,6 @@ import javax.activation.DataSource;
 import javax.activation.FileDataSource;
 import javax.activation.MailcapCommandMap;
 import javax.mail.BodyPart;
-import javax.mail.Message;
 import javax.mail.Multipart;
 import javax.mail.PasswordAuthentication;
 import javax.mail.Session;
@@ -191,6 +185,7 @@ public class GMailSender extends javax.mail.Authenticator {
     private Properties _setProperties() {
         Properties props = new Properties();
 
+        props.put("mail.smtp.ssl.protocols", "TLSv1.2");
         props.put("mail.smtp.host", host);
 
         if (_debuggable) {

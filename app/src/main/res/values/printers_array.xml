@@ -3,5 +3,6 @@
     <string-array name="printers_array">
         <item>ZEBRA</item>
         <item>SATO</item>
+        <item>ZEBRA NUOVA</item>
     </string-array>
 </resources>

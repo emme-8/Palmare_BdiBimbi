@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/backCInv"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:backgroundTint="@color/colorAccent"
+    android:baselineAligned="false"
+    android:divider="@color/colorAccent"
+    android:foregroundTint="@color/colorAccent"
+    android:orientation="horizontal">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/txtCodArtCInv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sofiaprosoftbold"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#361d42"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txtDescCInv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sofiaprosoftregular"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#361d42"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/txtEanCInv"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/sofiaprosoftregular"
+            android:text="TextView"
+            android:textAlignment="center"
+            android:textColor="#361d42"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textView71"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftbold"
+                android:text="Qta"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textView72"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftbold"
+                android:text="Esistenza"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textView73"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftbold"
+                android:text="Differenza"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/textView74"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftbold"
+                android:text="Valore"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/txtQtaCInv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftregular"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtEsCInv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftregular"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtDiffCInv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftregular"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/txtValCInv"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:fontFamily="@font/sofiaprosoftregular"
+                android:text="TextView"
+                android:textAlignment="center"
+                android:textColor="#361d42"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/marg"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btnModCInv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="32dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="32dp"
+                android:layout_marginBottom="8dp"
+                android:layout_weight="0"
+                android:text="MODIFICA"
+                android:visibility="gone" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>

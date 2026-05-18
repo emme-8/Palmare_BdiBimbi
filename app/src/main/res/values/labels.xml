@@ -3,7 +3,12 @@
     <string-array name="labels_array">
         <item>Etichetta piccola</item>
         <item>Frontalino</item>
+        <item>Frontalino piccolo</item>
+        <item>SCAFFALE</item>
         <item>Etichetta promo</item>
         <item>Frontalino promo</item>
+        <item>Personalizzata</item>
+        <item>Etic. segnacollo estesa</item>
+        <item>Etic. segnacollo ridotta</item>
     </string-array>
 </resources>

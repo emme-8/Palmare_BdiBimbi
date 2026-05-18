@@ -12,8 +12,10 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintBottom_toTopOf="@+id/btnSaveImp"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -212,6 +214,17 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/spinner" />
+
+            <ImageButton
+                android:id="@+id/editNP"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/transparent"
+                app:layout_constraintBottom_toBottomOf="@+id/insPalmNome"
+                app:layout_constraintStart_toEndOf="@+id/insPalmNome"
+                app:layout_constraintTop_toTopOf="@+id/insPalmNome"
+                app:srcCompat="@android:drawable/ic_menu_edit" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
     </ScrollView>

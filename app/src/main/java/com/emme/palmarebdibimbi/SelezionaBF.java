@@ -9,18 +9,21 @@ import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.function.BinaryOperator;
 
 public class SelezionaBF extends AppCompatActivity {
 
@@ -31,7 +34,8 @@ public class SelezionaBF extends AppCompatActivity {
     ArrayList<String> data = new ArrayList<>();
     ArrayList<String> serie = new ArrayList<>();
     String tipoRiga;
-    String magazzino;
+    boolean isRemoto;
+    String utente, magazzino, segnaC, ipNeg, nomeMag;
     ListView listView;
     String whereId, whereAnno, whereMag, whereTipo, whereSel, tipo, whereForn, whereNDoc;
     int listino, mag, spuntaOrPresa, magRif, listinoRif;
@@ -68,6 +72,11 @@ public class SelezionaBF extends AppCompatActivity {
             magazzino = extras.getString("magazzino");
             listino = extras.getInt("listino");
             mag = extras.getInt("mag");
+            ipNeg = extras.getString("ipNeg");
+            utente = extras.getString("utente");
+            nomeMag = extras.getString("nomeMag");
+            isRemoto = extras.getBoolean("isRemoto");
+            segnaC = extras.getString("segnaC");
             listinoRif = extras.getInt("listinoRif");
             magRif = extras.getInt("magRif");
             ubic = extras.getBoolean("ubicazione");
@@ -88,7 +97,7 @@ public class SelezionaBF extends AppCompatActivity {
             }
             if(!extras.getString("anno").equals("")){
                 Integer annoSucc = Integer.parseInt(extras.getString("anno")) + 1;
-                whereAnno = " and Documento.data > " + "'" + extras.getString("anno") + "-01-01 00:00:00.000'" + "and Documento.data < " + "'" + annoSucc + "-01-01 00:00:00.000' ";
+                whereAnno = " and Documento.data between " + "'" + extras.getString("anno") + "-01-01 00:00:00.000'" + "and " + "'" + annoSucc + "-01-01 00:00:00.000' ";
             }else{
                 whereAnno = " ";
             }
@@ -98,8 +107,15 @@ public class SelezionaBF extends AppCompatActivity {
         }
         tipoRiga = extras.getString("selettore");
 
-        SelezionaBF.FindBF cerca = new SelezionaBF.FindBF();
-        cerca.execute("");
+        if(isRemoto){
+            SelezionaBF.FindBF cerca = new SelezionaBF.FindBF();
+            cerca.execute("");
+        }else{
+            whereMag = " and Magazzino.nome = '"+nomeMag+"' ";
+            SelezionaBF.FindBFOFF cerca = new SelezionaBF.FindBFOFF();
+            cerca.execute("");
+        }
+
     }
 
     private boolean isInternetAvailable() {
@@ -146,7 +162,7 @@ public class SelezionaBF extends AppCompatActivity {
     }
 
     public void setRows(){
-        AdapterSelBF whatever = new AdapterSelBF(this, id, ndoc, forn, data, tipoRiga, ubic, listino, mag, tipo, spuntaOrPresa, magazzino, listinoRif, magRif, serie);
+        AdapterSelBF whatever = new AdapterSelBF(this, id, ndoc, forn, data, tipoRiga, ubic, listino, mag, tipo, spuntaOrPresa, magazzino, listinoRif, magRif, serie, segnaC, utente, isRemoto, ipNeg);
         listView.setAdapter(whatever);
     }
 
@@ -168,6 +184,8 @@ public class SelezionaBF extends AppCompatActivity {
                 pbSelBF.setVisibility(View.GONE);
                 listView.setVisibility(View.VISIBLE);
                 setRows();
+            }else if(r != null && r.contains("connessione")){
+                noMatch("Errore!","Errore di connessione con il server. Verifica la connessione e riprova.", true);
             }else{
                 noMatch("Errore!","Nessun documento trovato con i filtri impostati", true);
             }
@@ -276,6 +294,100 @@ public class SelezionaBF extends AppCompatActivity {
                         //z = "Ordine trovato";
                         isSuccess = true;
                     }
+                }
+            }
+            catch (Exception ex) {
+                isSuccess = false;
+                z = "Errore";
+            }
+            return z;
+        }
+
+    }
+
+    public class FindBFOFF extends AsyncTask<String,String,String>
+    {
+        String z = "";
+        Boolean isSuccess = false;
+        ResultSet res;
+
+        @Override
+        protected void onPreExecute() {
+            pbSelBF.setVisibility(View.VISIBLE);
+            listView.setVisibility(View.GONE);
+        }
+
+        @Override
+        protected void onPostExecute(String r) {
+            if(isSuccess) {
+                pbSelBF.setVisibility(View.GONE);
+                listView.setVisibility(View.VISIBLE);
+                setRows();
+            }else if(r != null && r.contains("connessione")){
+                noMatch("Errore!","Errore di connessione con il server. Verifica la connessione e riprova.", true);
+            }else{
+                noMatch("Errore!","Nessun documento trovato con i filtri impostati", true);
+            }
+        }
+
+        @Override
+        protected String doInBackground(String... params) {
+
+            Connection con = null;
+            ResultSet res;
+            try {
+                StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+                StrictMode.setThreadPolicy(policy);
+                String ConnURL;
+
+                try {
+
+                    Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                    ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                    con = DriverManager.getConnection(ConnURL);
+
+                }catch (SQLException se)
+                {
+                    Log.e("error here 1 : ", se.getMessage());
+                }
+                catch (ClassNotFoundException e)
+                {
+                    Log.e("error here 2 : ", e.getMessage());
+                }
+                catch (Exception e)
+                {
+                    Log.e("error here 3 : ", e.getMessage());
+                } if (con != null) {
+                    String query = "select distinct Documento.id, numero, ragioneSociale, Documento.data, Documento.dataCreazione, Documento.serie\n" +
+                            "from Documento left join Fornitore on (Documento.idFornitore = fornitore.id)\n" +
+                            "left join Anagrafica on (Anagrafica.id = Fornitore.idAnagrafica)\n" +
+                            "join RigaDocumento on (RigaDocumento.idMaster = Documento.id) " +
+                            "join Magazzino on idMagazzinoDestinazione = Magazzino.id " +
+                            "where Documento.id is not null " +
+                            whereTipo + whereId + whereAnno + whereMag +
+                            whereSel + whereNDoc + whereForn +
+                            "and idMagazzinoDestinazione is not null " +
+                            "order by ragioneSociale, Documento.data desc";
+                    Statement stmt = con.createStatement();
+                    res = stmt.executeQuery(query);
+                    while(res.next()) {
+                        id.add(res.getString("id"));
+                        ndoc.add(res.getString("numero"));
+                        serie.add(res.getString("serie"));
+                        if(res.getString("ragioneSociale")!=null){
+                            forn.add(res.getString("ragioneSociale"));
+                        }else{
+                            forn.add("");
+                        }
+                        String dt = res.getString("data").substring(8,10) + "-" + res.getString("data").substring(5,7) + "-" + res.getString("data").substring(0,4);
+                        data.add(dt);
+                    }
+                    if (!(id.isEmpty())) {
+                        //z = "Ordine trovato";
+                        isSuccess = true;
+                    }
+                } else {
+                    z = "Errore di connessione con il server";
                 }
             }
             catch (Exception ex) {

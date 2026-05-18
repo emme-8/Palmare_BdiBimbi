@@ -1,11 +1,10 @@
 package com.emme.palmarebdibimbi;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -17,24 +16,12 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.core.app.ActivityCompat;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.CellType;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
-import java.util.Stack;
-
-import jcifs.smb.NtlmPasswordAuthentication;
-import jcifs.smb.SmbFile;
-import jcifs.smb.SmbFileOutputStream;
 
 public class AdapterReviewInv  extends ArrayAdapter {
 
@@ -43,11 +30,14 @@ public class AdapterReviewInv  extends ArrayAdapter {
     private ArrayList<String> desc, note;
     private ArrayList<String> ubic, subic;
     private ArrayList<String> qtaInv;
-    String magazzino, nSp, nG;
+    private ArrayList<String> nG;
+    String magazzino, nSp, causale, ipNeg, storeInv, insert, gXNome, cartella, fileName;
+    int nRighe;
 
     public AdapterReviewInv(Activity context, ArrayList<String> codArtArrayParam, ArrayList<String> descArrayParam,
                             ArrayList<String> qtaInvArrayParam, ArrayList<String> ubicArrayParam, ArrayList<String> subicArrayParam,
-                            ArrayList<String> aliasArrayParam, ArrayList<String> noteArrayParam, String magazzino, String nSp, String nG){
+                            ArrayList<String> aliasArrayParam, ArrayList<String> noteArrayParam, String magazzino, String nSp, ArrayList<String> nG,
+                            String causale, String insert, String storeInv, int nRighe, String gXNome, String cartella, String fileName){
 
         super(context, R.layout.adapter_review_inv, codArtArrayParam);
 
@@ -62,6 +52,13 @@ public class AdapterReviewInv  extends ArrayAdapter {
         this.magazzino = magazzino;
         this.nSp = nSp;
         this.nG = nG;
+        this.causale = causale;
+        this.storeInv = storeInv;
+        this.insert = insert;
+        this.nRighe = nRighe;
+        this.gXNome = gXNome;
+        this.cartella = cartella;
+        this.fileName = fileName;
     }
 
     public View getView(int position, View view, ViewGroup parent) {
@@ -71,10 +68,10 @@ public class AdapterReviewInv  extends ArrayAdapter {
         TextView txtCodArt = rowView.findViewById(R.id.txtCodArtRowInv);
         TextView txtDesc = rowView.findViewById(R.id.txtDescRowInv);
         TextView txtQtaInv = rowView.findViewById(R.id.txtQtaRowInv);
-        TextView txtUbic = rowView.findViewById(R.id.txtUbicRev);
-        TextView txtSubic = rowView.findViewById(R.id.txtSubicRev);
+        TextView txtUbic = rowView.findViewById(R.id.txtUbicRowInv);
+        TextView txtSubic = rowView.findViewById(R.id.txtImportedStatus);
         Button btnMod = rowView.findViewById(R.id.btnModRigaRev);
-        TextView txtEAN = rowView.findViewById(R.id.txtEanRowInv);
+        TextView txtEAN = rowView.findViewById(R.id.txtAliasRowInv);
 
         txtCodArt.setText(codArt.get(position));
         txtDesc.setText(desc.get(position));
@@ -123,7 +120,7 @@ public class AdapterReviewInv  extends ArrayAdapter {
             builder.show();
         });
 
-        Button saveDoc = context.findViewById(R.id.btnSaveDocInv);
+        Button saveDoc = context.findViewById(R.id.btnSaveDocInvLocal);
         saveDoc.setOnClickListener(v -> putInExcelFile());
 
         return rowView;
@@ -191,9 +188,7 @@ public class AdapterReviewInv  extends ArrayAdapter {
         }*/
 
         SharedPreferences p = PreferenceManager.getDefaultSharedPreferences(context);
-        String nomeP = p.getString("NomePalm","");
-        String fileName; //Name of the file
-        fileName = nomeP+"inventario_"+nG+"_"+nSp+".xlsx"; //Name of the file
+        String nomeP = p.getString("NomePalm",""); //Name of the file
 
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -210,8 +205,8 @@ public class AdapterReviewInv  extends ArrayAdapter {
 
         String email = p.getString("Email", "");
         String emailPass = p.getString("EmailPass", "");
-        String filePath = "/storage/emulated/0/NAS/SpuntaGen/"+ fileName;
-        String obj = nomeP+"inventario_"+nG+"_"+nSp;
+        String filePath = "/storage/emulated/0/NAS/"+cartella+"/"+ fileName;
+        String obj = nomeP+"_"+causale+"_"+gXNome+"_"+nSp;
         String[] to = new String[]{"spunte@bdibimbi.it", email};
         try {
             sendEmail(to,email, obj, " ", filePath, email, emailPass);
@@ -219,7 +214,7 @@ public class AdapterReviewInv  extends ArrayAdapter {
             e.printStackTrace();
         }
 
-        alertDisplayer("Attenzione!", "Documento d'inventario creato con successo, verrai riportato alla home");
+        alertDisplayer("Attenzione!", "Documento d'inventario creato con successo, vuoi inserire "+nRighe+" righe nella tabella inventario?");
     }
 
     public static boolean sendEmail(String[] to, String from, String subject,
@@ -261,6 +256,269 @@ public class AdapterReviewInv  extends ArrayAdapter {
     }
 
     private void alertDisplayer(String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setNegativeButton("NO", (dialog, which) -> {
+                    dialog.cancel();
+                    Intent retHome = new Intent(context, MainActivity.class);
+                    context.startActivity(retHome);
+                    context.finish();
+                })
+                .setPositiveButton("SI", (dialog, which) -> {
+                    dialog.cancel();
+                    risolviMagL();
+                    addRowsInv();
+                });
+        AlertDialog ok = builder.create();
+        ok.show();
+    }
+
+    public void risolviMagL(){
+        switch (storeInv) {
+            case "MASTER":
+                ipNeg = "192.168.2.41";
+                break;
+            case "INTEMPORANEO":
+                ipNeg = "192.168.2.41";
+                break;
+            case "SESTU":
+                ipNeg = "192.168.1.20";
+                break;
+            case "MARCONI":
+                ipNeg = "192.168.1.20";
+                break;
+            case "PIRRI":
+                ipNeg = "192.168.1.20";
+                break;
+            case "OLBIA":
+                ipNeg = "192.168.1.10";
+                break;
+            case "SASSARI":
+                ipNeg = "192.168.1.20";
+                break;
+            case "NUORO":
+                ipNeg = "192.168.1.20";
+                break;
+            case "CARBONIA":
+                ipNeg = "192.168.1.20";
+                break;
+            case "TORTOLI":
+                ipNeg = "192.168.1.20";
+                break;
+            case "ORISTANO":
+                ipNeg = "85.47.29.51";
+                break;
+            case "TIBURTINA":
+            case "MasterMagRoma":
+                ipNeg = "195.100.100.202";
+                break;
+            case "CAPENA":
+                ipNeg = "198.100.100.204";
+                break;
+            case "OSTIENSE":
+                ipNeg = "196.100.100.203";
+                break;
+            case "IN LAVORAZIONE":
+                ipNeg = "192.168.2.41";
+                break;
+            case "CASILINA":
+                ipNeg = "192.168.1.20";
+                break;
+            case "ARDEATINA":
+                ipNeg = "192.168.1.20";
+                break;
+            case "VERONA":
+                ipNeg = "192.168.16.20";
+                break;
+            case "POMEZIA":
+                ipNeg = "192.168.1.20";
+                break;
+            case "CEDIROMAINLAV":
+            case "ROMACEDI":
+                ipNeg = "192.168.1.20";
+                break;
+            case "INTRANSITO":
+                ipNeg = "192.168.2.41";
+                break;
+            default:
+                ipNeg = "192.168.1.20";
+                break;
+        }
+    }
+
+    protected void addRowsInv() {
+        Connection con = null;
+        ResultSet res;
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            String ConnURL;
+
+            try {
+
+                Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                con = DriverManager.getConnection(ConnURL);
+
+            }catch (SQLException se)
+            {
+                Log.e("error here 1 : ", se.getMessage());
+            }
+            catch (ClassNotFoundException e)
+            {
+                Log.e("error here 2 : ", e.getMessage());
+            }
+            catch (Exception e)
+            {
+                Log.e("error here 3 : ", e.getMessage());
+            } if (con != null) {
+                String query = "INSERT INTO inventario2023 (codArt, gondola, sparata, qta, timing, esistenza, store)" +
+                        "VALUES "+insert+" ";
+                Statement stmt = con.createStatement();
+                res = stmt.executeQuery(query);
+
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if(con!=null){
+            try{
+                con.close();
+            }catch (SQLException ex){
+
+            }
+        }
+        verificaInsert();
+    }
+
+    protected void verificaInsert() {
+        Connection con = null;
+        ResultSet res;
+        String gondole = "";
+        for(int i=0; i<nG.size(); i++){
+            if(i==0){
+                gondole = "'"+ nG.get(i)+"'";
+            }else{
+                gondole = gondole+",'"+ nG.get(i)+"'";
+            }
+        }
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            String ConnURL;
+
+            try {
+
+                Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                con = DriverManager.getConnection(ConnURL);
+
+            }catch (SQLException se)
+            {
+                Log.e("error here 1 : ", se.getMessage());
+            }
+            catch (ClassNotFoundException e)
+            {
+                Log.e("error here 2 : ", e.getMessage());
+            }
+            catch (Exception e)
+            {
+                Log.e("error here 3 : ", e.getMessage());
+            } if (con != null) {
+                String query = "SELECT count(*) as nSparate " +
+                        "FROM Inventario2023 " +
+                        "WHERE gondola in ("+gondole+") and sparata = "+nSp+" ";
+                Statement stmt = con.createStatement();
+                res = stmt.executeQuery(query);
+                if(res.next()){
+                    if(nRighe == res.getInt("nSparate")){
+                        con.close();
+                        fine("Attenzione!", "Tutte le righe sono state caricate correttamente, verrai riportato alla home");
+                    }else{
+                        riprova("Attenzione!", "E' avvenuto un errore durante il caricamento sul database, verrà effettuato un nuovo tentativo");
+                    }
+                }else{
+                    riprova("Attenzione!", "E' avvenuto un errore durante il caricamento sul database, verrà effettuato un nuovo tentativo");
+                }
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if(con!=null){
+            try{
+                con.close();
+            }catch (SQLException ex){
+
+            }
+        }
+    }
+
+    protected void cancellaERiprova() {
+        Connection con = null;
+        ResultSet res;
+        String gondole = "";
+        for(int i=0; i<nG.size(); i++){
+            if(i==0){
+                gondole = "'"+ nG.get(i)+"'";
+            }else{
+                gondole = gondole+",'"+ nG.get(i)+"'";
+            }
+        }
+        try {
+            StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+            StrictMode.setThreadPolicy(policy);
+            String ConnURL;
+
+            try {
+
+                Class.forName("net.sourceforge.jtds.jdbc.Driver");
+                ConnURL = "jdbc:jtds:sqlserver://"+ipNeg+"/PassepartoutRetail;user=sa;password=SaSqlPass*01;";
+                con = DriverManager.getConnection(ConnURL);
+
+            }catch (SQLException se)
+            {
+                Log.e("error here 1 : ", se.getMessage());
+            }
+            catch (ClassNotFoundException e)
+            {
+                Log.e("error here 2 : ", e.getMessage());
+            }
+            catch (Exception e)
+            {
+                Log.e("error here 3 : ", e.getMessage());
+            } if (con != null) {
+                String query = "delete a from inventario2023 a where gondola in ("+gondole+") ";
+                Statement stmt = con.createStatement();
+                res = stmt.executeQuery(query);
+
+            }
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        if(con!=null){
+            try{
+                con.close();
+            }catch (SQLException ex){
+
+            }
+        }
+        addRowsInv();
+    }
+
+    private void riprova(String title,String message){
+        AlertDialog.Builder builder = new AlertDialog.Builder(context)
+                .setTitle(title)
+                .setMessage(message)
+                .setPositiveButton("OK", (dialog, which) -> {
+                    dialog.cancel();
+                    cancellaERiprova();
+                });
+        AlertDialog ok = builder.create();
+        ok.show();
+    }
+
+    private void fine(String title,String message){
         AlertDialog.Builder builder = new AlertDialog.Builder(context)
                 .setTitle(title)
                 .setMessage(message)

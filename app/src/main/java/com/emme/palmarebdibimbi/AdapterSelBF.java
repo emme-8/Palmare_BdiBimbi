@@ -29,12 +29,13 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
     private ArrayList<String> forn;
     private ArrayList<String> serie;
     private ArrayList<String> data;
-    Boolean ubic;
+    Boolean ubic, isRemoto;
     int listino, mag, spuntaOrPresa, listinoRif, magRif;
-    String tipoRiga, tipo, magazzino, fornitore;
+    String tipoRiga, tipo, magazzino, fornitore, segnaC, utente, ipNeg;
 
     public AdapterSelBF(Activity context, ArrayList<String> idArrayParam, ArrayList<String> ndocArrayParam, ArrayList<String> fornArrayParam, ArrayList<String> dataArrayParam,
-                        String tipoRiga, Boolean ubic, int listino, int mag, String tipo, int spuntaOrPresa, String magazzino, int listinoRif, int magRif, ArrayList<String> serieArrayParam){
+                        String tipoRiga, Boolean ubic, int listino, int mag, String tipo, int spuntaOrPresa, String magazzino, int listinoRif, int magRif, ArrayList<String> serieArrayParam,
+                        String segnaC, String utente, boolean isRemoto, String ipNeg){
 
         super(context,R.layout.adapter_bf , idArrayParam);
         this.tipo = tipo;
@@ -51,7 +52,11 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
         this.listinoRif = listinoRif;
         this.magRif = magRif;
         this.spuntaOrPresa = spuntaOrPresa;
+        this.segnaC = segnaC;
+        this.utente = utente;
         this.magazzino = magazzino;
+        this.ipNeg = ipNeg;
+        this.isRemoto = isRemoto;
         mCheckStates = new SparseBooleanArray(id.size());
     }
 
@@ -127,10 +132,14 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
                         openDoc.putExtra("listino", listino);
                         openDoc.putExtra("ubicazione", ubic);
                         openDoc.putExtra("mag", mag);
+                        openDoc.putExtra("segnaC", segnaC);
                         openDoc.putExtra("listinoRif", listinoRif);
                         openDoc.putExtra("magRif", magRif);
                         openDoc.putExtra("tipo", tipo);
                         openDoc.putExtra("magazzino", magazzino);
+                        openDoc.putExtra("utente", utente);
+                        openDoc.putExtra("ipNeg", ipNeg);
+                        openDoc.putExtra("isRemoto", isRemoto);
                         context.startActivity(openDoc);
                     }
                 }
@@ -156,6 +165,15 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
 
         layout.addView(spinnerTipo);
 
+        ArrayList<String> spinnerArrayTipoEs = new ArrayList<String>();
+        spinnerArrayTipoEs.add("Esistenza > 0");
+        spinnerArrayTipoEs.add("Tutto");
+        Spinner spinnerTipoEs = new Spinner(context);
+        ArrayAdapter<String> spinnerArrayAdapterEs = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_dropdown_item, spinnerArrayTipoEs);
+        spinnerTipoEs.setAdapter(spinnerArrayAdapterEs);
+
+        layout.addView(spinnerTipoEs);
+
         builder.setView(layout);
 
         builder.setPositiveButton("OK", (dialog, which) -> {
@@ -167,6 +185,7 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
             openDoc.putStringArrayListExtra("serieDocs", serieSel);
             openDoc.putExtra("tipoRiga", tipoRiga);
             openDoc.putExtra("tipoOrd", spinnerTipo.getSelectedItemPosition());
+            openDoc.putExtra("tipoEs", spinnerTipoEs.getSelectedItemPosition());
             openDoc.putExtra("fornitore", fornitore);
             openDoc.putExtra("listino", listino);
             openDoc.putExtra("ubicazione", ubic);
@@ -174,7 +193,10 @@ public class AdapterSelBF extends ArrayAdapter implements CompoundButton.OnCheck
             openDoc.putExtra("listinoRif", listinoRif);
             openDoc.putExtra("magRif", magRif);
             openDoc.putExtra("tipo", tipo);
+            openDoc.putExtra("utente", utente);
             openDoc.putExtra("magazzino", magazzino);
+            openDoc.putExtra("ipNeg", ipNeg);
+            openDoc.putExtra("isRemoto", isRemoto);
             context.startActivity(openDoc);
         });
         android.app.AlertDialog ok = builder.create();

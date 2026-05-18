@@ -18,6 +18,7 @@ public class MyApplication extends Application {
     private ArrayList<String> serie;
     private ArrayList<String> esistenza;
     private ArrayList<String> impegnati;
+    private ArrayList<String> costo;
 
     @Override
     public void onCreate() {
@@ -128,5 +129,13 @@ public class MyApplication extends Application {
 
     public void setImpegnati(ArrayList<String> impegnati) {
         this.impegnati = impegnati;
+    }
+
+    public ArrayList<String> getCosto() {
+        return costo;
+    }
+
+    public void setCosto(ArrayList<String> costo) {
+        this.costo = costo;
     }
 }
